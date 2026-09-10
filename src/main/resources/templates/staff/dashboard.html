@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Maintenance Staff Dashboard — Smart Campus</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></div>
+
+    <div id="content">
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <div class="page-container">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                <div>
+                    <h3 class="fw-bold mb-1">Technician Workbench</h3>
+                    <p class="text-muted mb-0">Welcome, <span class="fw-semibold text-dark" th:text="${currentUser.name}">Technician</span> (<span th:text="${currentUser.department}">Trade</span>)! Manage assigned campus repairs.</p>
+                </div>
+                <div>
+                    <a href="/staff/complaints" class="btn btn-primary shadow-sm"><i class="fas fa-tasks me-1"></i> View Assigned Tasks</a>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="card-stats">
+                        <div class="stat-label">Total Assigned</div>
+                        <div class="stat-value" th:text="${stats.totalComplaints}">0</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-stats">
+                        <div class="stat-label">Pending Acceptance</div>
+                        <div class="stat-value text-info" th:text="${stats.assignedComplaints}">0</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-stats">
+                        <div class="stat-label">In Progress</div>
+                        <div class="stat-value text-primary" th:text="${stats.inProgressComplaints}">0</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-stats">
+                        <div class="stat-label">Completed</div>
+                        <div class="stat-value text-success" th:text="${stats.resolvedComplaints}">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Tasks Table -->
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-tools text-primary me-2"></i>My Recent Tasks</h5>
+                    <a href="/staff/complaints" class="btn btn-sm btn-outline-primary">View All Tasks</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-custom mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Location</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Assigned Date</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="c : ${recentTasks}">
+                                    <td><strong class="text-primary" th:text="${c.complaintNumber}">CMP-2026-00001</strong></td>
+                                    <td class="fw-semibold text-dark" th:text="${c.title}">Title</td>
+                                    <td th:text="${c.building.name + ' - Room ' + c.roomNumber}">Location</td>
+                                    <td><span class="badge badge-custom" th:classappend="${c.priority.badgeClass}" th:text="${c.priority.displayName}">MEDIUM</span></td>
+                                    <td><span class="badge badge-custom" th:classappend="${c.status.badgeClass}" th:text="${c.status.displayName}">ASSIGNED</span></td>
+                                    <td class="small text-muted" th:text="${#temporals.format(c.assignedAt != null ? c.assignedAt : c.createdAt, 'yyyy-MM-dd HH:mm')}">Date</td>
+                                    <td class="text-end">
+                                        <a th:href="@{/staff/complaints/{id}(id=${c.id})}" class="btn btn-sm btn-primary"><i class="fas fa-wrench me-1"></i>Work On Task</a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(recentTasks)}">
+                                    <td colspan="7" class="text-center py-5 text-muted">
+                                        No tasks currently assigned to you.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

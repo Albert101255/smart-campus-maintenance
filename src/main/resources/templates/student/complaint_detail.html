@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Complaint Detail — Smart Campus</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar('complaints')}"></div>
+
+    <div id="content">
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <div class="page-container">
+            <!-- Flash Messages -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-1"></i> <span th:text="${successMessage}">Success</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Breadcrumb & Actions -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                <div>
+                    <a href="/student/complaints" class="text-decoration-none small text-muted"><i class="fas fa-arrow-left me-1"></i> Back to My Complaints</a>
+                    <h3 class="fw-bold mt-1 mb-0">
+                        Complaint <span class="text-primary" th:text="${complaint.complaintNumber}">CMP-2026-00001</span>
+                    </h3>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <!-- Action Button: Confirm Resolution -->
+                    <form th:if="${complaint.status.name() == 'RESOLVED'}" th:action="@{/student/complaints/{id}/confirm(id=${complaint.id})}" method="post">
+                        <button type="submit" class="btn btn-success fw-semibold shadow-sm"><i class="fas fa-check-circle me-1"></i> Confirm Issue Resolved</button>
+                    </form>
+
+                    <!-- Action Button: Reopen -->
+                    <button th:if="${complaint.status.name() == 'RESOLVED' or complaint.status.name() == 'CLOSED'}"
+                            class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#reopenModal">
+                        <i class="fas fa-redo me-1"></i> Reopen Issue
+                    </button>
+
+                    <!-- Action Button: Cancel Complaint -->
+                    <form th:if="${complaint.status.name() == 'OPEN'}" th:action="@{/student/complaints/{id}/cancel(id=${complaint.id})}" method="post">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm" onclick="return confirm('Are you sure you want to cancel this complaint?')"><i class="fas fa-times me-1"></i> Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Left Column: Details & Images -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm rounded-3 mb-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 border-bottom pb-3 mb-3">
+                                <div>
+                                    <span class="badge badge-custom me-2" th:classappend="${complaint.status.badgeClass}" th:text="${complaint.status.displayName}">STATUS</span>
+                                    <span class="badge badge-custom me-2" th:classappend="${complaint.priority.badgeClass}" th:text="${complaint.priority.displayName}">PRIORITY</span>
+                                    <span th:if="${complaint.overdue}" class="badge bg-danger text-white"><i class="fas fa-exclamation-triangle me-1"></i>OVERDUE SLA</span>
+                                </div>
+                                <div class="text-muted small">
+                                    <i class="far fa-calendar-alt me-1"></i> Created: <span th:text="${#temporals.format(complaint.createdAt, 'yyyy-MM-dd HH:mm')}">Date</span>
+                                </div>
+                            </div>
+
+                            <h4 class="fw-bold text-dark mb-3" th:text="${complaint.title}">Projector display flickering</h4>
+
+                            <div class="row g-3 bg-light p-3 rounded-3 mb-4 border">
+                                <div class="col-sm-6">
+                                    <small class="text-muted d-block fw-semibold text-uppercase">Category</small>
+                                    <span class="fw-semibold" th:text="${complaint.category.name}">Category</span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <small class="text-muted d-block fw-semibold text-uppercase">Building &amp; Room</small>
+                                    <span class="fw-semibold" th:text="${complaint.building.name + ' — Floor ' + complaint.floor + ', Room ' + complaint.roomNumber}">Location</span>
+                                </div>
+                                <div class="col-sm-6" th:if="${complaint.locationDescription != null and !complaint.locationDescription.isBlank()}">
+                                    <small class="text-muted d-block fw-semibold text-uppercase">Specific Spot</small>
+                                    <span class="text-dark" th:text="${complaint.locationDescription}">Spot</span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <small class="text-muted d-block fw-semibold text-uppercase">Assigned Technician</small>
+                                    <span th:if="${complaint.assignedStaff != null}" class="fw-bold text-primary" th:text="${complaint.assignedStaff.name + ' (' + complaint.assignedStaff.department + ')'}">Ravi</span>
+                                    <span th:if="${complaint.assignedStaff == null}" class="text-muted italic">Awaiting Admin Assignment</span>
+                                </div>
+                            </div>
+
+                            <h6 class="fw-bold text-dark mb-2">Description</h6>
+                            <p class="text-secondary mb-4" style="white-space: pre-line;" th:text="${complaint.description}">Detailed description...</p>
+
+                            <!-- Before & After Photos -->
+                            <div class="row g-3" th:if="${complaint.beforeImagePath != null or complaint.afterImagePath != null}">
+                                <div class="col-sm-6" th:if="${complaint.beforeImagePath != null}">
+                                    <h6 class="fw-bold small text-muted mb-2">Issue Photo (Submitted)</h6>
+                                    <a th:href="${complaint.beforeImagePath}" target="_blank">
+                                        <img th:src="${complaint.beforeImagePath}" class="img-fluid rounded border shadow-sm" style="max-height: 220px; object-fit: cover;" alt="Before">
+                                    </a>
+                                </div>
+                                <div class="col-sm-6" th:if="${complaint.afterImagePath != null}">
+                                    <h6 class="fw-bold small text-success mb-2"><i class="fas fa-check-circle me-1"></i> Repair Photo (Technician)</h6>
+                                    <a th:href="${complaint.afterImagePath}" target="_blank">
+                                        <img th:src="${complaint.afterImagePath}" class="img-fluid rounded border border-success shadow-sm" style="max-height: 220px; object-fit: cover;" alt="After">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feedback & Rating Section (Visible if resolved/closed) -->
+                    <div class="card border-0 shadow-sm rounded-3 mb-4" th:if="${complaint.status.name() == 'RESOLVED' or complaint.status.name() == 'CLOSED'}">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-star text-warning me-2"></i>Service Feedback &amp; Rating</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Existing Feedback -->
+                            <div th:if="${feedback != null}" class="bg-light p-3 rounded border">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="fw-bold">Your Rating:</span>
+                                    <div class="text-warning fs-5">
+                                        <i class="fas fa-star" th:each="i : ${#numbers.sequence(1, feedback.rating)}"></i>
+                                        <i class="far fa-star" th:if="${feedback.rating < 5}" th:each="i : ${#numbers.sequence(feedback.rating + 1, 5)}"></i>
+                                    </div>
+                                    <span class="badge bg-primary ms-2" th:text="${feedback.rating + ' / 5'}">5 / 5</span>
+                                </div>
+                                <p class="text-muted mb-0" th:text="${feedback.comments}">Feedback comment</p>
+                            </div>
+
+                            <!-- Submit Feedback Form -->
+                            <form th:if="${feedback == null}" th:action="@{/student/complaints/{id}/feedback(id=${complaint.id})}" th:object="${feedbackRequest}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Select Rating (1 to 5 Stars)</label>
+                                    <div class="rating-stars d-flex gap-2">
+                                        <select th:field="*{rating}" class="form-select w-auto" required>
+                                            <option value="5" selected>5 Stars — Excellent Service</option>
+                                            <option value="4">4 Stars — Good Work</option>
+                                            <option value="3">3 Stars — Average</option>
+                                            <option value="2">2 Stars — Poor</option>
+                                            <option value="1">1 Star — Unsatisfactory</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="feedbackComments" class="form-label fw-semibold">Feedback Comment</label>
+                                    <textarea th:field="*{comments}" id="feedbackComments" class="form-control" rows="2" placeholder="Leave a review for the maintenance team..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-warning text-dark fw-semibold"><i class="fas fa-star me-1"></i> Submit Feedback</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="card border-0 shadow-sm rounded-3 mb-4">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-comments text-primary me-2"></i>Discussion &amp; Updates</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="comments-list mb-4">
+                                <div th:each="comment : ${comments}" class="d-flex gap-3 mb-3 p-3 rounded-3 border" th:classappend="${comment.author.id == currentUser.id ? 'bg-light ms-4' : 'bg-white me-4'}">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:40px; height:40px;">
+                                        <span th:text="${#strings.substring(comment.author.name,0,1).toUpperCase()}">U</span>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="fw-bold text-dark" th:text="${comment.author.name}">Author</span>
+                                            <span class="small text-muted" th:text="${#temporals.format(comment.timestamp, 'MMM dd, HH:mm')}">Time</span>
+                                        </div>
+                                        <p class="mb-0 text-secondary" th:text="${comment.content}">Content</p>
+                                    </div>
+                                </div>
+
+                                <div th:if="${#lists.isEmpty(comments)}" class="text-center text-muted py-3">
+                                    No comments yet.
+                                </div>
+                            </div>
+
+                            <!-- Add Comment Form -->
+                            <form th:action="@{/student/complaints/{id}/comment(id=${complaint.id})}" th:object="${commentRequest}" method="post">
+                                <div class="input-group">
+                                    <input type="text" th:field="*{content}" class="form-control" placeholder="Write a comment or follow-up..." required>
+                                    <button class="btn btn-primary" type="submit"><i class="fas fa-paper-plane me-1"></i> Post Comment</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Timeline History -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-3">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-history text-primary me-2"></i>Progress Timeline</h5>
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="timeline">
+                                <div th:each="h : ${history}" class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="fw-bold small text-dark" th:text="${h.action}">ACTION</span>
+                                            <span class="small text-muted" style="font-size:0.75rem;" th:text="${#temporals.format(h.timestamp, 'MMM dd, HH:mm')}">Date</span>
+                                        </div>
+                                        <p class="small text-secondary mb-1" th:text="${h.details}">Details</p>
+                                        <div class="small text-muted" style="font-size:0.7rem;" th:if="${h.user != null}">
+                                            By: <span th:text="${h.user.name}">User</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reopen Modal -->
+        <div class="modal fade" id="reopenModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form th:action="@{/student/complaints/{id}/reopen(id=${complaint.id})}" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-header fw-bold">Reopen Complaint</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="text-muted small">Please state why the problem is still unresolved:</p>
+                            <textarea name="reason" class="form-control" rows="3" placeholder="e.g. The projector turned off again during afternoon session..." required></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger">Confirm Reopen</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

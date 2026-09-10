@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>All Complaints — Admin Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar('complaints')}"></div>
+
+    <div id="content">
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <div class="page-container">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                <div>
+                    <h3 class="fw-bold mb-1">Campus Complaints Registry</h3>
+                    <p class="text-muted mb-0">Search, filter, assign, and manage all campus maintenance requests.</p>
+                </div>
+                <div>
+                    <a href="/admin/reports/export/csv" class="btn btn-outline-success"><i class="fas fa-file-excel me-1"></i> Export Report CSV</a>
+                </div>
+            </div>
+
+            <!-- Filters Form -->
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-body p-3">
+                    <form th:action="@{/admin/complaints}" method="get" class="row g-2">
+                        <div class="col-md-3">
+                            <input type="text" name="keyword" th:value="${keyword}" class="form-control" placeholder="Search ID, Student, Title, Room...">
+                        </div>
+                        <div class="col-md-2">
+                            <select name="status" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Statuses</option>
+                                <option th:each="st : ${statuses}" th:value="${st}" th:text="${st.displayName}" th:selected="${st == currentStatus}">Status</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="priority" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Priorities</option>
+                                <option th:each="pr : ${priorities}" th:value="${pr}" th:text="${pr.displayName}" th:selected="${pr == currentPriority}">Priority</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="buildingId" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Buildings</option>
+                                <option th:each="b : ${buildings}" th:value="${b.id}" th:text="${b.name}" th:selected="${b.id == currentBuildingId}">Building</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="staffId" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Staff</option>
+                                <option th:each="stf : ${staffMembers}" th:value="${stf.id}" th:text="${stf.name}" th:selected="${stf.id == currentStaffId}">Staff</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 d-flex gap-1">
+                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i></button>
+                            <a href="/admin/complaints" class="btn btn-outline-secondary"><i class="fas fa-undo"></i></a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Table Card -->
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-custom mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Student Name</th>
+                                    <th>Reg No</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Building</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Assigned Staff</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="c : ${complaints.content}">
+                                    <td>
+                                        <strong class="text-primary" th:text="${c.complaintNumber}">CMP-2026-00001</strong>
+                                        <div th:if="${c.overdue}" class="badge bg-danger text-white mt-1 d-block">OVERDUE</div>
+                                    </td>
+                                    <td class="fw-semibold text-dark" th:text="${c.student.name}">Alex</td>
+                                    <td class="small text-muted" th:text="${c.student.registerNumber}">STU2026001</td>
+                                    <td th:text="${c.title}">Title</td>
+                                    <td><span class="badge bg-light text-dark border" th:text="${c.category.name}">Category</span></td>
+                                    <td th:text="${c.building.name}">Building</td>
+                                    <td><span class="badge badge-custom" th:classappend="${c.priority.badgeClass}" th:text="${c.priority.displayName}">MEDIUM</span></td>
+                                    <td><span class="badge badge-custom" th:classappend="${c.status.badgeClass}" th:text="${c.status.displayName}">OPEN</span></td>
+                                    <td>
+                                        <span th:if="${c.assignedStaff != null}" class="fw-bold text-dark small" th:text="${c.assignedStaff.name}">Ravi</span>
+                                        <span th:if="${c.assignedStaff == null}" class="badge bg-warning text-dark">Unassigned</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a th:href="@{/admin/complaints/{id}(id=${c.id})}" class="btn btn-sm btn-primary"><i class="fas fa-edit me-1"></i>Manage</a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${complaints.totalElements == 0}">
+                                    <td colspan="10" class="text-center py-5 text-muted">
+                                        No complaints found matching the active filters.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer bg-white py-3" th:if="${complaints.totalPages > 1}">
+                    <nav>
+                        <ul class="pagination pagination-sm justify-content-center mb-0">
+                            <li class="page-item" th:classappend="${complaints.first} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/complaints(page=${complaints.number - 1}, status=${currentStatus}, priority=${currentPriority}, buildingId=${currentBuildingId}, staffId=${currentStaffId}, keyword=${keyword})}">Previous</a>
+                            </li>
+                            <li class="page-item" th:each="i : ${#numbers.sequence(0, complaints.totalPages - 1)}" th:classappend="${i == complaints.number} ? 'active'">
+                                <a class="page-link" th:href="@{/admin/complaints(page=${i}, status=${currentStatus}, priority=${currentPriority}, buildingId=${currentBuildingId}, staffId=${currentStaffId}, keyword=${keyword})}" th:text="${i + 1}">1</a>
+                            </li>
+                            <li class="page-item" th:classappend="${complaints.last} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/complaints(page=${complaints.number + 1}, status=${currentStatus}, priority=${currentPriority}, buildingId=${currentBuildingId}, staffId=${currentStaffId}, keyword=${keyword})}">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

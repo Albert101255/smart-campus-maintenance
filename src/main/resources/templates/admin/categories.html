@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Categories — Admin Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar('categories')}"></div>
+
+    <div id="content">
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <div class="page-container">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                <div>
+                    <h3 class="fw-bold mb-1">Complaint Categories</h3>
+                    <p class="text-muted mb-0">Manage issue classifications for maintenance reporting.</p>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                        <i class="fas fa-plus-circle me-1"></i> Add Category
+                    </button>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-custom mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Category Name</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="cat : ${categories}">
+                                    <td><strong class="text-dark" th:text="${cat.name}">Electrical</strong></td>
+                                    <td class="text-muted" th:text="${cat.description}">Description</td>
+                                    <td>
+                                        <span th:if="${cat.active}" class="badge bg-success">ACTIVE</span>
+                                        <span th:if="${!cat.active}" class="badge bg-secondary">INACTIVE</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <form th:action="@{/admin/categories/{id}/toggle(id=${cat.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm" th:classappend="${cat.active ? 'btn-outline-danger' : 'btn-outline-success'}">
+                                                <span th:text="${cat.active ? 'Deactivate' : 'Activate'}">Toggle</span>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="addCategoryModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form th:action="@{/admin/categories}" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title fw-bold">Add New Category</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="catName" class="form-label small fw-semibold">Category Name</label>
+                                <input type="text" name="name" id="catName" class="form-control" required placeholder="e.g. Solar Equipment">
+                            </div>
+                            <div class="mb-3">
+                                <label for="catDesc" class="form-label small fw-semibold">Description</label>
+                                <textarea name="description" id="catDesc" class="form-control" rows="3" placeholder="Brief explanation of items in this category..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Category</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

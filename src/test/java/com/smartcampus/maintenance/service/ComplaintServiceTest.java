@@ -107,4 +107,98 @@ public class ComplaintServiceTest {
         var history = complaintService.getComplaintHistory(closed);
         assertTrue(history.size() >= 5);
     }
+
+    @Test
+    void testSlaCalculationAndPriorityAssignment() {
+        ComplaintCreateRequest req = new ComplaintCreateRequest();
+        req.setTitle("Critical Power Outage in Server Room");
+        req.setCategoryId(testCategory.getId());
+        req.setBuildingId(testBuilding.getId());
+        req.setFloor("Floor G");
+        req.setRoomNumber("Server Room 01");
+        req.setDescription("Main UPS tripped, servers running on backup battery");
+        req.setPriority(PriorityLevel.LOW);
+
+        Complaint complaint = complaintService.createComplaint(req, testStudent);
+        assertEquals(PriorityLevel.LOW, complaint.getPriority());
+        assertEquals(48, complaint.getPriority().getSlaHours());
+        assertFalse(complaint.isOverdue());
+        assertTrue(complaint.getSlaRemainingHours() <= 48 && complaint.getSlaRemainingHours() >= 47);
+
+        // Escalate priority to CRITICAL during admin assignment
+        Complaint assigned = complaintService.assignStaff(
+                complaint.getId(), testStaff.getId(), PriorityLevel.CRITICAL, "Escalate to Critical SLA", testAdmin);
+        assertEquals(PriorityLevel.CRITICAL, assigned.getPriority());
+        assertEquals(4, assigned.getPriority().getSlaHours());
+
+        // Simulate elapsed time exceeding CRITICAL SLA (4 hours)
+        assigned.setCreatedAt(java.time.LocalDateTime.now().minusHours(6));
+        assertTrue(assigned.isOverdue());
+        assertEquals(0, assigned.getSlaRemainingHours());
+
+        // Resolved complaints are never overdue
+        complaintService.startWork(assigned.getId(), testStaff);
+        Complaint resolved = complaintService.completeWork(assigned.getId(), null, "Restored main breaker", testStaff);
+        resolved.setCreatedAt(java.time.LocalDateTime.now().minusHours(10));
+        assertFalse(resolved.isOverdue());
+    }
+
+    @Test
+    void testUnauthorizedWorkflowTransitions() {
+        ComplaintCreateRequest req = new ComplaintCreateRequest();
+        req.setTitle("Water Cooler Leaking");
+        req.setCategoryId(testCategory.getId());
+        req.setBuildingId(testBuilding.getId());
+        req.setFloor("Floor 2");
+        req.setRoomNumber("Corridor");
+        req.setDescription("Water pooling near electrical socket");
+        req.setPriority(PriorityLevel.MEDIUM);
+
+        Complaint complaint = complaintService.createComplaint(req, testStudent);
+
+        // Assigning a non-staff user (student) as technician must fail
+        assertThrows(IllegalArgumentException.class, () ->
+                complaintService.assignStaff(complaint.getId(), testStudent.getId(), PriorityLevel.MEDIUM, "Invalid staff", testAdmin)
+        );
+
+        // Unassigned staff cannot start work
+        assertThrows(com.smartcampus.maintenance.exception.UnauthorizedOperationException.class, () ->
+                complaintService.startWork(complaint.getId(), testStaff)
+        );
+
+        // Another user cannot confirm or reopen student's complaint
+        assertThrows(com.smartcampus.maintenance.exception.UnauthorizedOperationException.class, () ->
+                complaintService.confirmResolution(complaint.getId(), testAdmin)
+        );
+        assertThrows(com.smartcampus.maintenance.exception.UnauthorizedOperationException.class, () ->
+                complaintService.reopenComplaint(complaint.getId(), "Still leaking", testAdmin)
+        );
+    }
+
+    @Test
+    void testReopenAndCancelWorkflowTransitions() {
+        ComplaintCreateRequest req = new ComplaintCreateRequest();
+        req.setTitle("Projector Lamp Dim");
+        req.setCategoryId(testCategory.getId());
+        req.setBuildingId(testBuilding.getId());
+        req.setFloor("Floor 3");
+        req.setRoomNumber("Room 302");
+        req.setDescription("Lamp is very dim even in dark room");
+        req.setPriority(PriorityLevel.MEDIUM);
+
+        Complaint complaint = complaintService.createComplaint(req, testStudent);
+        complaintService.assignStaff(complaint.getId(), testStaff.getId(), PriorityLevel.MEDIUM, "Check bulb", testAdmin);
+        complaintService.startWork(complaint.getId(), testStaff);
+        complaintService.completeWork(complaint.getId(), null, "Cleaned lens", testStaff);
+
+        // Student reopens because issue persists
+        Complaint reopened = complaintService.reopenComplaint(complaint.getId(), "Lamp still dim after cleaning", testStudent);
+        assertEquals(ComplaintStatus.REOPENED, reopened.getStatus());
+
+        // Student cancels complaint
+        Complaint cancelled = complaintService.cancelComplaint(complaint.getId(), "Room no longer in use", testStudent);
+        assertEquals(ComplaintStatus.CANCELLED, cancelled.getStatus());
+        assertFalse(cancelled.isOverdue());
+    }
 }
+

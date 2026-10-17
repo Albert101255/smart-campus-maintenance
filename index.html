@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Campus Maintenance — Interactive Workflow Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --success: #22c55e;
+      --warning: #eab308;
+      --danger: #ef4444;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .role-switcher {
+      display: flex;
+      background: #0f172a;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      gap: 4px;
+    }
+    .role-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .role-btn.active {
+      background: var(--primary);
+      color: #0f172a;
+      font-weight: 600;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+      flex: 1;
+      width: 100%;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .stat-val {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .stat-val.alert { color: var(--danger); }
+    .actions-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .btn {
+      background: var(--primary);
+      color: #0f172a;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn:hover { background: var(--primary-hover); color: #fff; }
+    .btn-secondary {
+      background: #334155;
+      color: var(--text);
+    }
+    .btn-secondary:hover { background: #475569; }
+    .table-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    th {
+      background: #111827;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+    .status-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .status-OPEN { background: rgba(56, 189, 248, 0.15); color: var(--primary); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .status-ASSIGNED { background: rgba(168, 85, 247, 0.15); color: var(--purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+    .status-IN_PROGRESS { background: rgba(234, 179, 8, 0.15); color: var(--warning); border: 1px solid rgba(234, 179, 8, 0.3); }
+    .status-RESOLVED { background: rgba(34, 197, 94, 0.15); color: var(--success); border: 1px solid rgba(34, 197, 94, 0.3); }
+    .priority-CRITICAL { color: var(--danger); font-weight: 700; }
+    .priority-HIGH { color: #fb923c; font-weight: 600; }
+    .priority-MEDIUM { color: var(--warning); }
+    .priority-LOW { color: var(--text-muted); }
+    .sla-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
+    .sla-overdue {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+    .modal {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 550px;
+      padding: 24px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-header h2 { font-size: 1.15rem; }
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 6px;
+    }
+    .form-control {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: inherit;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+    .form-control:focus { outline: none; border-color: var(--primary); }
+    textarea.form-control { resize: vertical; min-height: 80px; }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      border: 1px solid var(--primary);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      display: none;
+      z-index: 2000;
+    }
+    footer {
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      padding: 16px 32px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    footer a { color: var(--primary); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1><span>🏫</span> Smart Campus Maintenance</h1>
+      <span class="badge">Spring Boot 3 &bull; JPA &bull; SLA Engine</span>
+    </div>
+    <div class="role-switcher">
+      <button class="role-btn active" onclick="switchRole('STUDENT')">Student View</button>
+      <button class="role-btn" onclick="switchRole('ADMIN')">Admin View</button>
+      <button class="role-btn" onclick="switchRole('TECHNICIAN')">Technician Station</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Work Orders</div>
+        <div class="stat-val" id="stat-total">5</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Open / Unassigned</div>
+        <div class="stat-val" id="stat-open">1</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">In Progress</div>
+        <div class="stat-val" id="stat-progress">2</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Resolved & Confirmed</div>
+        <div class="stat-val" id="stat-resolved">2</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">SLA Overdue</div>
+        <div class="stat-val alert" id="stat-overdue">1</div>
+      </div>
+    </div>
+
+    <div class="actions-bar">
+      <div>
+        <span id="role-headline" style="font-family:'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--text-muted);">
+          Current Role: <strong style="color:#fff;">Student</strong> (Report facilities issues & track resolution)
+        </span>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn" id="btn-new-complaint" onclick="openNewModal()">+ Submit Facility Complaint</button>
+        <button class="btn btn-secondary" onclick="resetDemo()">Reset Demo</button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Ticket #</th>
+            <th>Category</th>
+            <th>Location</th>
+            <th>Title & Notes</th>
+            <th>Priority</th>
+            <th>SLA Target</th>
+            <th>Status</th>
+            <th>Technician</th>
+            <th>Workflow Action</th>
+          </tr>
+        </thead>
+        <tbody id="complaints-table-body">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- New Complaint Modal -->
+  <div class="modal-backdrop" id="new-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Submit Facility Complaint</h2>
+        <button class="close-btn" onclick="closeNewModal()">&times;</button>
+      </div>
+      <form id="new-form" onsubmit="submitComplaint(event)">
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" class="form-control" id="form-title" required placeholder="e.g. AC unit leaking refrigerant in Lab 304">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select class="form-control" id="form-category">
+            <option value="HVAC">HVAC / Air Conditioning</option>
+            <option value="Electrical">Electrical / Lighting</option>
+            <option value="Plumbing">Plumbing & Water</option>
+            <option value="IT_Network">IT & Network Infrastructure</option>
+            <option value="Carpentry">Carpentry & Furniture</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Campus Location</label>
+          <input type="text" class="form-control" id="form-location" required placeholder="e.g. Easwari Block 3, 2nd Floor Lab 304">
+        </div>
+        <div class="form-group">
+          <label>Priority (determines SLA deadline)</label>
+          <select class="form-control" id="form-priority">
+            <option value="CRITICAL">CRITICAL (SLA: 4 Hours) — Class disruption / hazard</option>
+            <option value="HIGH">HIGH (SLA: 12 Hours) — Core utility failure</option>
+            <option value="MEDIUM" selected>MEDIUM (SLA: 24 Hours) — Routine repair</option>
+            <option value="LOW">LOW (SLA: 72 Hours) — Minor cosmetic</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description Details</label>
+          <textarea class="form-control" id="form-desc" required placeholder="Provide specific symptoms or room numbers..."></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeNewModal()">Cancel</button>
+          <button type="submit" class="btn">Register Complaint</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <footer>
+    <div>Interactive Web Demonstration of <strong>Smart Campus Maintenance</strong> (Spring Boot 3 + Spring Data JPA + SLA Engine).</div>
+    <div><a href="https://github.com/Albert101255/smart-campus-maintenance" target="_blank">&rarr; View Spring Boot Source Code on GitHub</a></div>
+  </footer>
+
+  <script>
+    const INITIAL_COMPLAINTS = [
+      {
+        id: 'SCM-101',
+        title: 'Central AC Compressor Trip',
+        category: 'HVAC',
+        location: 'CS Block, Lab 302',
+        priority: 'CRITICAL',
+        slaHours: 4,
+        createdHoursAgo: 5.5,
+        status: 'IN_PROGRESS',
+        technician: 'Ramesh K. (HVAC)',
+        student: 'Abraham Albert (CSE)',
+        rating: null
+      },
+      {
+        id: 'SCM-102',
+        title: 'Overhead Projector Power Flicker',
+        category: 'Electrical',
+        location: 'Mechanical Block Seminar Hall 1',
+        priority: 'HIGH',
+        slaHours: 12,
+        createdHoursAgo: 2,
+        status: 'ASSIGNED',
+        technician: 'Suresh V. (Electrician)',
+        student: 'Kavitha R. (ECE)',
+        rating: null
+      },
+      {
+        id: 'SCM-103',
+        title: 'Restroom Flush Valve Leakage',
+        category: 'Plumbing',
+        location: 'Main Hostel Block B, Floor 2',
+        priority: 'MEDIUM',
+        slaHours: 24,
+        createdHoursAgo: 3,
+        status: 'OPEN',
+        technician: 'Unassigned',
+        student: 'Praveen M. (IT)',
+        rating: null
+      },
+      {
+        id: 'SCM-104',
+        title: 'Cisco Access Point Packet Loss',
+        category: 'IT_Network',
+        location: 'Library 3rd Floor Digital Lounge',
+        priority: 'HIGH',
+        slaHours: 12,
+        createdHoursAgo: 8,
+        status: 'RESOLVED',
+        technician: 'Muthu P. (Network Engineer)',
+        student: 'Dinesh B. (CSE)',
+        rating: 5
+      },
+      {
+        id: 'SCM-105',
+        title: 'Broken Door Hinge & Latch',
+        category: 'Carpentry',
+        location: 'Civil Department Staff Room',
+        priority: 'LOW',
+        slaHours: 72,
+        createdHoursAgo: 14,
+        status: 'RESOLVED',
+        technician: 'Murugan G. (Carpentry)',
+        student: 'Deepak T. (Civil)',
+        rating: 4
+      }
+    ];
+
+    let complaints = JSON.parse(localStorage.getItem('scm_demo') || 'null') || JSON.parse(JSON.stringify(INITIAL_COMPLAINTS));
+    let currentRole = 'STUDENT';
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3500);
+    }
+
+    function switchRole(role) {
+      currentRole = role;
+      document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const headline = document.getElementById('role-headline');
+      if (role === 'STUDENT') {
+        headline.innerHTML = 'Current Role: <strong style="color:#fff;">Student</strong> (Report facilities issues & confirm resolution)';
+      } else if (role === 'ADMIN') {
+        headline.innerHTML = 'Current Role: <strong style="color:#fff;">Facilities Administrator</strong> (Assign technicians, monitor SLAs, and escalate)';
+      } else {
+        headline.innerHTML = 'Current Role: <strong style="color:#fff;">Maintenance Technician</strong> (Update work orders & mark completed)';
+      }
+      render();
+    }
+
+    function render() {
+      // Calculate Stats
+      const total = complaints.length;
+      const open = complaints.filter(c => c.status === 'OPEN').length;
+      const inProg = complaints.filter(c => c.status === 'ASSIGNED' || c.status === 'IN_PROGRESS').length;
+      const resolved = complaints.filter(c => c.status === 'RESOLVED').length;
+      const overdue = complaints.filter(c => c.status !== 'RESOLVED' && c.createdHoursAgo > c.slaHours).length;
+
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-open').textContent = open;
+      document.getElementById('stat-progress').textContent = inProg;
+      document.getElementById('stat-resolved').textContent = resolved;
+      document.getElementById('stat-overdue').textContent = overdue;
+
+      const tbody = document.getElementById('complaints-table-body');
+      tbody.innerHTML = complaints.map(c => {
+        const isOverdue = c.status !== 'RESOLVED' && c.createdHoursAgo > c.slaHours;
+        const hoursLeft = Math.max(0, Math.round((c.slaHours - c.createdHoursAgo) * 10) / 10);
+
+        let actionCell = '';
+        if (currentRole === 'ADMIN') {
+          if (c.status === 'OPEN') {
+            actionCell = `<button class="btn" style="padding:4px 8px; font-size:0.75rem;" onclick="assignTech('${c.id}')">Assign Tech</button>`;
+          } else if (c.status !== 'RESOLVED') {
+            actionCell = `<button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="escalatePriority('${c.id}')">Escalate</button>`;
+          } else {
+            actionCell = `<span style="color:var(--success); font-family:'JetBrains Mono'; font-size:0.75rem;">Completed</span>`;
+          }
+        } else if (currentRole === 'TECHNICIAN') {
+          if (c.status === 'ASSIGNED') {
+            actionCell = `<button class="btn" style="padding:4px 8px; font-size:0.75rem;" onclick="updateStatus('${c.id}', 'IN_PROGRESS')">Start Work</button>`;
+          } else if (c.status === 'IN_PROGRESS') {
+            actionCell = `<button class="btn" style="padding:4px 8px; font-size:0.75rem; background:var(--success); color:#fff;" onclick="updateStatus('${c.id}', 'RESOLVED')">Mark Done</button>`;
+          } else {
+            actionCell = `<span style="color:var(--text-muted); font-size:0.75rem;">--</span>`;
+          }
+        } else { // STUDENT
+          if (c.status === 'RESOLVED') {
+            actionCell = c.rating ? `⭐ ${c.rating}/5 Confirmed` : `<button class="btn" style="padding:4px 8px; font-size:0.75rem;" onclick="rateService('${c.id}')">Rate Service</button>`;
+          } else {
+            actionCell = `<span style="color:var(--text-muted); font-family:'JetBrains Mono'; font-size:0.75rem;">Tracking</span>`;
+          }
+        }
+
+        return `
+          <tr>
+            <td style="font-family:'JetBrains Mono'; font-weight:600;">${c.id}</td>
+            <td><strong>${c.category}</strong></td>
+            <td>${c.location}</td>
+            <td>${c.title}</td>
+            <td class="priority-${c.priority}">${c.priority}</td>
+            <td>
+              ${isOverdue 
+                ? `<span class="sla-overdue">&bull; OVERDUE by ${(c.createdHoursAgo - c.slaHours).toFixed(1)}h</span>`
+                : `<span class="sla-badge" style="color:var(--primary);">${hoursLeft}h left (${c.slaHours}h target)</span>`
+              }
+            </td>
+            <td><span class="status-badge status-${c.status}">${c.status}</span></td>
+            <td>${c.technician}</td>
+            <td>${actionCell}</td>
+          </tr>
+        `;
+      }).join('');
+
+      localStorage.setItem('scm_demo', JSON.stringify(complaints));
+    }
+
+    function openNewModal() {
+      document.getElementById('new-modal').style.display = 'flex';
+    }
+    function closeNewModal() {
+      document.getElementById('new-modal').style.display = 'none';
+    }
+
+    function submitComplaint(e) {
+      e.preventDefault();
+      const title = document.getElementById('form-title').value.trim();
+      const category = document.getElementById('form-category').value;
+      const location = document.getElementById('form-location').value.trim();
+      const priority = document.getElementById('form-priority').value;
+
+      const slaMap = { CRITICAL: 4, HIGH: 12, MEDIUM: 24, LOW: 72 };
+      const newId = `SCM-${100 + complaints.length + 1}`;
+
+      complaints.unshift({
+        id: newId,
+        title,
+        category,
+        location,
+        priority,
+        slaHours: slaMap[priority],
+        createdHoursAgo: 0.1,
+        status: 'OPEN',
+        technician: 'Unassigned',
+        student: 'Student (Self)',
+        rating: null
+      });
+
+      closeNewModal();
+      render();
+      showToast(`Complaint ${newId} registered with ${slaMap[priority]}h SLA deadline!`);
+    }
+
+    function assignTech(id) {
+      const c = complaints.find(x => x.id === id);
+      if (!c) return;
+      c.status = 'ASSIGNED';
+      c.technician = 'Karthik S. (Duty Staff)';
+      render();
+      showToast(`Assigned ${c.id} to technician Karthik S.`);
+    }
+
+    function updateStatus(id, newStatus) {
+      const c = complaints.find(x => x.id === id);
+      if (!c) return;
+      c.status = newStatus;
+      render();
+      showToast(`Work order ${c.id} status changed to ${newStatus}`);
+    }
+
+    function escalatePriority(id) {
+      const c = complaints.find(x => x.id === id);
+      if (!c) return;
+      c.priority = 'CRITICAL';
+      c.slaHours = 4;
+      render();
+      showToast(`Escalated ${c.id} priority to CRITICAL (SLA reduced to 4h)`);
+    }
+
+    function rateService(id) {
+      const c = complaints.find(x => x.id === id);
+      if (!c) return;
+      c.rating = 5;
+      render();
+      showToast(`Thank you! Confirmed 5-star resolution on ${c.id}`);
+    }
+
+    function resetDemo() {
+      complaints = JSON.parse(JSON.stringify(INITIAL_COMPLAINTS));
+      render();
+      showToast('Reset all campus work orders to default demonstration data.');
+    }
+
+    render();
+  </script>
+</body>
+</html>

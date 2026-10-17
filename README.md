@@ -1,4 +1,8 @@
+> **Live Interactive Portal:** [https://albert101255.github.io/smart-campus-maintenance/](https://albert101255.github.io/smart-campus-maintenance/)
+
 # Smart Campus Complaint & Maintenance Management System
+
+> **Live Interactive Demo:** [https://albert101255.github.io/smart-campus-maintenance/](https://albert101255.github.io/smart-campus-maintenance/)
 
 A Java/Spring Boot application for reporting campus infrastructure problems, assigning maintenance staff, tracking complaint status and SLA deadlines, recording audit history, and collecting student feedback.
 

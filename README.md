@@ -1,6 +1,6 @@
 # Smart Campus Facilities & Maintenance Management System
 
-> **Live Interactive Preview:** [https://albert101255.github.io/smart-campus-maintenance/](https://albert101255.github.io/smart-campus-maintenance/)
+> **Official Website:** [https://albert101255.github.io/smart-campus-maintenance/](https://albert101255.github.io/smart-campus-maintenance/)
 
 An enterprise-grade facilities maintenance and incident management platform built with **Spring Boot 3**, **Spring Security**, **Spring Data JPA / Hibernate**, and a responsive modern dashboard with dark/light themes, real-time KPI metrics, printable dispatch slips, visual defect photo evidence, and strict **Role-Based Access Control (RBAC)**.
 
@@ -97,7 +97,7 @@ All endpoints are guarded by session authentication and role validation:
 ## 🛠️ Technology Stack & Capabilities
 
 - **Backend:** Java 21 / 27, Spring Boot 3.5.x, Spring MVC, Spring Security, Spring Data JPA, Hibernate
-- **Database:** H2 In-Memory DB (MySQL compatibility mode for zero-setup demo) / MySQL 8 for production
+- **Database:** Persistent H2 database (MySQL compatibility mode) / MySQL 8 for production
 - **Frontend:** HTML5, CSS3 Variables, Bootstrap 5.3, FontAwesome 6, native client-side CSV generator, print styles
 - **Design System:** Dark / Light theme toggle (`Ctrl + D`), responsive mobile drawer navigation, quick status tabs
 - **Defect Photo Evidence:** Pre-inspection photo attachment support (locked to mobile camera formats: JPG, PNG, WebP, HEIC) delivered as Base64 Data URI for modal and print slip inspection

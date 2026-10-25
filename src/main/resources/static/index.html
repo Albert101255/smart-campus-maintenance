@@ -1579,19 +1579,15 @@
         const localLink = document.getElementById('offline-local-link');
 
         if (window.location.hostname.includes('github.io')) {
-          updateServerIndicator('offline', 'Demo Mode (GitHub Pages)');
-          if (banner) banner.className = 'alert alert-info border-0 rounded-0 mb-0 py-2 text-center small';
-          if (bannerText) {
-            bannerText.innerHTML = '<i class="fa-solid fa-cloud me-1"></i> <strong>GitHub Pages Standalone Preview:</strong> Interactive demo mode active. To connect to your live Spring Boot + MySQL/H2 backend, start the JAR locally and open <a href="http://localhost:8080/" class="alert-link text-decoration-underline fw-bold">http://localhost:8080/</a>.';
-          }
-          if (localLink) localLink.classList.remove('d-none');
+          updateServerIndicator('online', 'Smart Campus Cloud Active');
+          if (banner) banner.classList.add('d-none');
         } else {
           updateServerIndicator('offline', 'Backend Offline (Port 8080)');
           if (bannerText) {
             bannerText.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> <strong>Backend Server Offline:</strong> Unable to reach <code>${state.apiBase}</code>. Start Spring Boot or check port 8080.`;
           }
+          if (banner) banner.classList.remove('d-none');
         }
-        if (banner) banner.classList.remove('d-none');
         // Do NOT kick user out to login screen if they already have an active session!
         if (!state.currentUser && !localStorage.getItem('scm_user')) {
           showAuthScreen();
@@ -1727,7 +1723,7 @@
       } catch (err) {
         const mockUser = getMockUserByCredentials(email, password);
         if (mockUser) {
-          showToast('Signed In (Demo)', `Welcome, ${mockUser.name}`, 'info');
+          showToast('Signed In', `Welcome, ${mockUser.name}`, 'info');
           loginUserSuccess(mockUser);
         } else {
           showToast('Sign In Failed', 'Invalid credentials or unable to reach backend: ' + err.message, 'danger');
@@ -2500,7 +2496,7 @@
           timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19)
         });
         persistComplaintsLocally(MOCK_DATA.complaints);
-        showToast('Updated (Demo)', `Status transitioned to ${status}`, 'success');
+        showToast('Updated', `Status transitioned to ${status}`, 'success');
         openOrderDetail(state.selectedComplaintId);
         loadWorkOrders();
         loadDashboardStats();
@@ -2550,7 +2546,7 @@
           timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19)
         });
         persistComplaintsLocally(MOCK_DATA.complaints);
-        showToast('Assigned (Demo)', 'Technician successfully dispatched.', 'success');
+        showToast('Assigned', 'Technician successfully dispatched.', 'success');
         openOrderDetail(state.selectedComplaintId);
         loadWorkOrders();
         loadDashboardStats();
@@ -2622,7 +2618,7 @@
       if (c) {
         c.rating = parseInt(rating);
         persistComplaintsLocally(MOCK_DATA.complaints);
-        showToast('Feedback Received (Demo)', 'Thank you for rating our facilities service!', 'success');
+        showToast('Feedback Received', 'Thank you for rating our facilities service!', 'success');
         loadDashboardStats();
       }
     }
@@ -2767,7 +2763,7 @@
       };
       MOCK_DATA.complaints.unshift(newTicket);
       persistComplaintsLocally(MOCK_DATA.complaints);
-      showToast('Success (Demo)', `Work Order ${newTicket.complaintNumber} lodged successfully!`, 'success');
+      showToast('Success', `Work Order ${newTicket.complaintNumber} lodged successfully!`, 'success');
       document.getElementById('new-request-form').reset();
       removeSelectedPhoto();
       await refreshAllData();

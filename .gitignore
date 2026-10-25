@@ -12,6 +12,7 @@ target/
 .settings/
 .vscode/
 
-# Logs & Uploads
+# Logs & Uploads & Database
 *.log
 uploads/
+data/

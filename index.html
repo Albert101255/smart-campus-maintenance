@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,38 +14,59 @@
       --primary: #1e40af;
       --primary-hover: #1d4ed8;
       --primary-light: #eff6ff;
-      --navy-900: #0f172a;
-      --navy-800: #1e293b;
-      --navy-700: #334155;
-      --slate-500: #64748b;
-      --slate-200: #e2e8f0;
-      --slate-100: #f1f5f9;
-      --slate-50: #f8fafc;
-      --success: #15803d;
-      --success-bg: #dcfce7;
-      --warning: #b45309;
-      --warning-bg: #fef3c7;
-      --danger: #b91c1c;
-      --danger-bg: #fee2e2;
-      --info: #0369a1;
-      --info-bg: #e0f2fe;
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-header: #ffffff;
+      --bg-muted: #f1f5f9;
+      --border-color: #e2e8f0;
+      --border-subtle: #f1f5f9;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-secondary: #475569;
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
     }
+
+    [data-theme="dark"] {
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-light: #1e293b;
+      --bg-body: #0b0f19;
+      --bg-card: #111827;
+      --bg-card-header: #131d31;
+      --bg-muted: #1e293b;
+      --border-color: #1e293b;
+      --border-subtle: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-secondary: #cbd5e1;
+      --input-bg: #1e293b;
+      --input-border: #334155;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--slate-50);
-      color: var(--navy-900);
+      background-color: var(--bg-body);
+      color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
-    /* Institutional Navbar */
+
+    /* Institutional Header */
     .app-header {
-      background: #ffffff;
-      border-bottom: 1px solid var(--slate-200);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
       position: sticky;
       top: 0;
       z-index: 1020;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
     }
     .brand-mark {
       width: 38px;
@@ -57,13 +78,13 @@
       align-items: center;
       justify-content: center;
       font-size: 1.15rem;
-      box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+      box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
     }
     .nav-pill-btn {
       font-size: 0.88rem;
       font-weight: 500;
-      color: var(--navy-700);
-      padding: 0.5rem 0.85rem;
+      color: var(--text-secondary);
+      padding: 0.45rem 0.8rem;
       border-radius: 6px;
       text-decoration: none;
       transition: all 0.15s ease;
@@ -76,14 +97,35 @@
     }
     .nav-pill-btn:hover {
       color: var(--primary);
-      background-color: var(--slate-100);
+      background-color: var(--bg-muted);
     }
     .nav-pill-btn.active {
       color: var(--primary);
       background-color: var(--primary-light);
-      border-color: #bfdbfe;
+      border-color: #3b82f640;
       font-weight: 600;
     }
+
+    /* Theme Toggle Button */
+    .theme-toggle-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .theme-toggle-btn:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: var(--bg-muted);
+    }
+
     /* Server connection pill */
     .connection-pill {
       font-size: 0.78rem;
@@ -93,8 +135,9 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      border: 1px solid var(--slate-200);
-      background: #ffffff;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-secondary);
       cursor: pointer;
     }
     .status-dot {
@@ -111,31 +154,32 @@
       background-color: #dc2626;
       box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
     }
-    /* KPI Card */
+
+    /* KPI Cards */
     .stat-card {
-      background: #ffffff;
-      border: 1px solid var(--slate-200);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: 10px;
       padding: 1.25rem 1.4rem;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      box-shadow: var(--shadow-sm);
       height: 100%;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
     }
     .stat-card:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      box-shadow: var(--shadow-md);
     }
     .stat-title {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       text-transform: uppercase;
       font-weight: 600;
       letter-spacing: 0.04em;
-      color: var(--slate-500);
+      color: var(--text-muted);
       margin-bottom: 0.35rem;
     }
     .stat-value {
       font-size: 2rem;
       font-weight: 700;
-      color: var(--navy-900);
+      color: var(--text-main);
       line-height: 1.1;
     }
     .stat-icon {
@@ -147,18 +191,20 @@
       justify-content: center;
       font-size: 1.25rem;
     }
-    /* Enterprise Data Table */
+
+    /* Enterprise Data Card & Table */
     .enterprise-card {
-      background: #ffffff;
-      border: 1px solid var(--slate-200);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: 10px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      box-shadow: var(--shadow-sm);
       overflow: hidden;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
     }
     .enterprise-card-header {
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--slate-200);
-      background: #ffffff;
+      padding: 0.9rem 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-card-header);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -168,27 +214,99 @@
     .table-enterprise {
       margin-bottom: 0;
       font-size: 0.88rem;
+      color: var(--text-main);
     }
     .table-enterprise thead th {
-      background-color: var(--slate-50);
-      color: var(--slate-500);
+      background-color: var(--bg-muted);
+      color: var(--text-muted);
       font-weight: 600;
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      border-bottom: 1px solid var(--slate-200);
+      border-bottom: 1px solid var(--border-color);
       padding: 0.75rem 1rem;
       white-space: nowrap;
     }
     .table-enterprise tbody td {
       padding: 0.85rem 1rem;
       vertical-align: middle;
-      border-bottom: 1px solid #f1f5f9;
-      color: var(--navy-800);
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      background-color: var(--bg-card);
     }
     .table-enterprise tbody tr:hover td {
-      background-color: #f8fafc;
+      background-color: var(--bg-muted);
     }
+
+    /* Dark mode form controls */
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .form-select {
+      background-color: var(--input-bg);
+      border-color: var(--input-border);
+      color: var(--text-main);
+    }
+    [data-theme="dark"] .form-control:focus,
+    [data-theme="dark"] .form-select:focus {
+      background-color: var(--input-bg);
+      border-color: var(--primary);
+      color: var(--text-main);
+    }
+    [data-theme="dark"] .input-group-text {
+      background-color: #1e293b;
+      border-color: var(--input-border);
+      color: var(--text-muted);
+    }
+    [data-theme="dark"] .dropdown-menu {
+      background-color: #1e293b;
+      border-color: #334155;
+      color: #f8fafc;
+    }
+    [data-theme="dark"] .dropdown-item {
+      color: #cbd5e1;
+    }
+    [data-theme="dark"] .dropdown-item:hover {
+      background-color: #334155;
+      color: #ffffff;
+    }
+    [data-theme="dark"] .modal-content {
+      background-color: #111827;
+      color: #f8fafc;
+      border: 1px solid #1e293b;
+    }
+    [data-theme="dark"] .modal-header,
+    [data-theme="dark"] .modal-footer {
+      border-color: #1e293b;
+    }
+    [data-theme="dark"] .btn-close {
+      filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    /* Status Filter Tabs Bar */
+    .filter-tab-pill {
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+    }
+    .filter-tab-pill:hover {
+      background-color: var(--bg-muted);
+      color: var(--primary);
+    }
+    .filter-tab-pill.active {
+      background-color: var(--primary-light);
+      color: var(--primary);
+      border-color: #3b82f640;
+      font-weight: 600;
+    }
+
     /* Status Badges */
     .badge-status {
       font-size: 0.75rem;
@@ -231,6 +349,13 @@
       color: #475569;
       border-color: #cbd5e1;
     }
+    [data-theme="dark"] .badge-status.open { background-color: #1e3a8a35; color: #93c5fd; border-color: #1e3a8a80; }
+    [data-theme="dark"] .badge-status.assigned { background-color: #581c8735; color: #d8b4fe; border-color: #581c8780; }
+    [data-theme="dark"] .badge-status.in_progress { background-color: #713f1235; color: #fde047; border-color: #713f1280; }
+    [data-theme="dark"] .badge-status.on_hold { background-color: #7c2d1235; color: #fdba74; border-color: #7c2d1280; }
+    [data-theme="dark"] .badge-status.resolved { background-color: #14532d35; color: #86efac; border-color: #14532d80; }
+    [data-theme="dark"] .badge-status.closed { background-color: #1e293b; color: #94a3b8; border-color: #334155; }
+
     .badge-priority {
       font-size: 0.72rem;
       font-weight: 600;
@@ -238,26 +363,16 @@
       border-radius: 4px;
       text-transform: uppercase;
     }
-    .badge-priority.critical {
-      background-color: #fef2f2;
-      color: #b91c1c;
-      border: 1px solid #fecaca;
-    }
-    .badge-priority.high {
-      background-color: #fff7ed;
-      color: #c2410c;
-      border: 1px solid #fed7aa;
-    }
-    .badge-priority.medium {
-      background-color: #f0f9ff;
-      color: #0369a1;
-      border: 1px solid #bae6fd;
-    }
-    .badge-priority.low {
-      background-color: #f8fafc;
-      color: #64748b;
-      border: 1px solid #e2e8f0;
-    }
+    .badge-priority.critical { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .badge-priority.high { background-color: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .badge-priority.medium { background-color: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+    .badge-priority.low { background-color: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+
+    [data-theme="dark"] .badge-priority.critical { background-color: #7f1d1d35; color: #fca5a5; border-color: #7f1d1d80; }
+    [data-theme="dark"] .badge-priority.high { background-color: #7c2d1235; color: #fdba74; border-color: #7c2d1280; }
+    [data-theme="dark"] .badge-priority.medium { background-color: #0c4a6e35; color: #7dd3fc; border-color: #0c4a6e80; }
+    [data-theme="dark"] .badge-priority.low { background-color: #1e293b; color: #94a3b8; border-color: #334155; }
+
     /* Timeline */
     .timeline {
       position: relative;
@@ -270,7 +385,7 @@
       top: 6px;
       bottom: 6px;
       width: 2px;
-      background: var(--slate-200);
+      background: var(--border-color);
     }
     .timeline-item {
       position: relative;
@@ -286,21 +401,36 @@
       width: 14px;
       height: 14px;
       border-radius: 50%;
-      background: #ffffff;
+      background: var(--bg-card);
       border: 3px solid var(--primary);
     }
-    /* Custom Toast */
+
     .toast-container {
       position: fixed;
-      top: 80px;
-      right: 24px;
+      top: 75px;
+      right: 20px;
       z-index: 1080;
+    }
+
+    /* Print Slip Stylesheet */
+    @media print {
+      body * { visibility: hidden; }
+      #printable-work-order, #printable-work-order * { visibility: visible; }
+      #printable-work-order {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        color: #000 !important;
+        background: #fff !important;
+        padding: 24px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Enterprise Top Navigation Bar -->
+  <!-- Institutional Top Navigation Bar -->
   <header class="app-header py-2">
     <div class="container-fluid px-4">
       <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -312,10 +442,10 @@
           </div>
           <div>
             <div class="d-flex align-items-center gap-2">
-              <span class="fw-bold text-dark fs-5 tracking-tight">SmartCampus</span>
+              <span class="fw-bold fs-5 tracking-tight" style="color: var(--text-main);">SmartCampus</span>
               <span class="badge bg-light text-secondary border fw-normal" style="font-size: 0.72rem;">Facilities Ops</span>
             </div>
-            <div class="text-secondary small" style="font-size: 0.76rem;">Campus Infrastructure & Maintenance Portal</div>
+            <div class="small" style="font-size: 0.76rem; color: var(--text-muted);">Campus Infrastructure &amp; Maintenance Portal</div>
           </div>
         </div>
 
@@ -341,13 +471,18 @@
           </button>
         </nav>
 
-        <!-- Right Side: Server Indicator & User Session Context -->
+        <!-- Right Side: Dark Mode Toggle, Server Indicator, Role Session -->
         <div class="d-flex align-items-center gap-2">
           
+          <!-- Dark Mode Toggle Button -->
+          <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode (Ctrl+D)">
+            <i class="fa-solid fa-moon" id="theme-icon"></i>
+          </button>
+
           <!-- API Server Status Badge -->
           <button class="connection-pill" onclick="openServerConfigModal()" title="Click to check or configure API endpoint">
             <span class="status-dot" id="server-status-dot"></span>
-            <span id="server-status-text" class="text-secondary">Checking Backend...</span>
+            <span id="server-status-text">Checking Backend...</span>
           </button>
 
           <!-- User Role Dropdown -->
@@ -358,7 +493,7 @@
               <span id="current-user-role-badge" class="badge bg-primary text-white" style="font-size: 0.68rem;">ADMIN</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 0.85rem;">
-              <li class="dropdown-header text-uppercase text-secondary" style="font-size: 0.7rem;">Institutional Switcher</li>
+              <li class="dropdown-header text-uppercase" style="font-size: 0.7rem;">Institutional Switcher</li>
               <li><button class="dropdown-item d-flex align-items-center gap-2" onclick="switchUserRole('ADMIN')"><i class="fa-solid fa-shield-halved text-danger"></i> Campus Administrator</button></li>
               <li><button class="dropdown-item d-flex align-items-center gap-2" onclick="switchUserRole('STAFF')"><i class="fa-solid fa-wrench text-warning"></i> Maintenance Technician (Ravi K.)</button></li>
               <li><button class="dropdown-item d-flex align-items-center gap-2" onclick="switchUserRole('STUDENT')"><i class="fa-solid fa-graduation-cap text-primary"></i> Student (Alex Morgan)</button></li>
@@ -372,7 +507,7 @@
 
       </div>
 
-      <!-- Mobile Navigation Pills -->
+      <!-- Mobile Navigation Tabs -->
       <div class="d-flex d-lg-none overflow-x-auto gap-1 mt-2 pt-2 border-top">
         <button class="nav-pill-btn active py-1 px-2" onclick="switchView('dashboard')">Dashboard</button>
         <button class="nav-pill-btn py-1 px-2" onclick="switchView('workorders')">Work Orders</button>
@@ -385,7 +520,7 @@
     </div>
   </header>
 
-  <!-- Offline Notice Banner (Shows automatically if backend is unreachable) -->
+  <!-- Offline Notice Banner -->
   <div id="backend-offline-banner" class="alert alert-warning border-0 rounded-0 mb-0 py-2 text-center small d-none" role="alert">
     <i class="fa-solid fa-triangle-exclamation me-1"></i>
     <strong>Backend Spring Boot Server Offline:</strong> Unable to connect to <code id="offline-target-url">http://localhost:8080/api</code>.
@@ -404,8 +539,8 @@
     <section id="view-dashboard" class="app-view">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
         <div>
-          <h2 class="fw-bold mb-1 fs-4 text-dark">Facilities Operations Dashboard</h2>
-          <p class="text-secondary small mb-0">Overview of campus infrastructure status, work orders, and resolution metrics.</p>
+          <h2 class="fw-bold mb-1 fs-4" style="color: var(--text-main);">Facilities Operations Dashboard</h2>
+          <p class="small mb-0" style="color: var(--text-muted);">Real-time campus maintenance metrics, SLA tracking, and service health.</p>
         </div>
         <div class="d-flex gap-2">
           <button class="btn btn-outline-secondary btn-sm" onclick="loadDashboardStats()">
@@ -425,7 +560,7 @@
               <div>
                 <div class="stat-title">Total Work Orders</div>
                 <div class="stat-value" id="stat-total-complaints">--</div>
-                <div class="text-secondary small mt-1"><span id="stat-students-count">--</span> registered students</div>
+                <div class="small mt-1" style="color: var(--text-muted);"><span id="stat-students-count">--</span> registered students</div>
               </div>
               <div class="stat-icon bg-primary-subtle text-primary">
                 <i class="fa-solid fa-clipboard-list"></i>
@@ -440,7 +575,7 @@
               <div>
                 <div class="stat-title">Open &amp; In Progress</div>
                 <div class="stat-value text-warning" id="stat-open-complaints">--</div>
-                <div class="text-secondary small mt-1"><span id="stat-inprogress-count">--</span> currently under repair</div>
+                <div class="small mt-1" style="color: var(--text-muted);"><span id="stat-inprogress-count">--</span> currently under repair</div>
               </div>
               <div class="stat-icon bg-warning-subtle text-warning">
                 <i class="fa-solid fa-screwdriver-wrench"></i>
@@ -455,7 +590,7 @@
               <div>
                 <div class="stat-title">Critical &amp; High Urgency</div>
                 <div class="stat-value text-danger" id="stat-critical-complaints">--</div>
-                <div class="text-secondary small mt-1"><span id="stat-overdue-count">0</span> escalated / overdue</div>
+                <div class="small mt-1" style="color: var(--text-muted);"><span id="stat-overdue-count">0</span> escalated / overdue</div>
               </div>
               <div class="stat-icon bg-danger-subtle text-danger">
                 <i class="fa-solid fa-fire"></i>
@@ -470,7 +605,7 @@
               <div>
                 <div class="stat-title">Resolution Rate &amp; Rating</div>
                 <div class="stat-value text-success" id="stat-resolution-rate">--%</div>
-                <div class="text-secondary small mt-1">Average Satisfaction: <span id="stat-avg-rating" class="fw-semibold text-dark">-- ★</span></div>
+                <div class="small mt-1" style="color: var(--text-muted);">Average Satisfaction: <span id="stat-avg-rating" class="fw-semibold" style="color: var(--text-main);">-- ★</span></div>
               </div>
               <div class="stat-icon bg-success-subtle text-success">
                 <i class="fa-solid fa-circle-check"></i>
@@ -480,7 +615,7 @@
         </div>
       </div>
 
-      <!-- Split Row: Priority Status Distribution + Recent Work Orders -->
+      <!-- Split Row: Lifecycle Progress + Recent Work Orders -->
       <div class="row g-4 mb-4">
         <div class="col-lg-4">
           <div class="enterprise-card h-100">
@@ -490,7 +625,7 @@
             <div class="p-4">
               <div class="mb-3">
                 <div class="d-flex justify-content-between small mb-1">
-                  <span class="text-secondary">Open / New Submissions</span>
+                  <span style="color: var(--text-muted);">Open / New Submissions</span>
                   <span class="fw-semibold" id="prog-open-val">0</span>
                 </div>
                 <div class="progress" style="height: 6px;">
@@ -499,7 +634,7 @@
               </div>
               <div class="mb-3">
                 <div class="d-flex justify-content-between small mb-1">
-                  <span class="text-secondary">Assigned to Technicians</span>
+                  <span style="color: var(--text-muted);">Assigned to Technicians</span>
                   <span class="fw-semibold" id="prog-assigned-val">0</span>
                 </div>
                 <div class="progress" style="height: 6px;">
@@ -508,7 +643,7 @@
               </div>
               <div class="mb-3">
                 <div class="d-flex justify-content-between small mb-1">
-                  <span class="text-secondary">In Progress / Repairs Ongoing</span>
+                  <span style="color: var(--text-muted);">In Progress / Repairs Ongoing</span>
                   <span class="fw-semibold" id="prog-inprogress-val">0</span>
                 </div>
                 <div class="progress" style="height: 6px;">
@@ -517,7 +652,7 @@
               </div>
               <div class="mb-3">
                 <div class="d-flex justify-content-between small mb-1">
-                  <span class="text-secondary">Resolved &amp; Closed</span>
+                  <span style="color: var(--text-muted);">Resolved &amp; Closed</span>
                   <span class="fw-semibold" id="prog-resolved-val">0</span>
                 </div>
                 <div class="progress" style="height: 6px;">
@@ -525,9 +660,9 @@
                 </div>
               </div>
 
-              <div class="mt-4 p-3 bg-light rounded border small">
-                <div class="fw-semibold text-dark mb-1"><i class="fa-solid fa-headset text-primary me-1"></i> Facilities Dispatch Office</div>
-                <p class="text-secondary mb-0">Emergency infrastructure support is available 24/7 across campus buildings. Technicians respond to Critical priority tickets within 1 hour.</p>
+              <div class="mt-4 p-3 rounded border small" style="background: var(--bg-muted);">
+                <div class="fw-semibold mb-1" style="color: var(--text-main);"><i class="fa-solid fa-headset text-primary me-1"></i> Facilities Dispatch Office</div>
+                <p class="mb-0" style="color: var(--text-muted);">Emergency infrastructure support is available 24/7 across campus buildings. Technicians respond to Critical priority tickets within 1 hour.</p>
               </div>
             </div>
           </div>
@@ -552,7 +687,7 @@
                   </tr>
                 </thead>
                 <tbody id="recent-orders-tbody">
-                  <tr><td colspan="6" class="text-center py-4 text-secondary">Loading real work orders...</td></tr>
+                  <tr><td colspan="6" class="text-center py-4" style="color: var(--text-muted);">Loading real work orders...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -567,12 +702,12 @@
     <section id="view-workorders" class="app-view d-none">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
         <div>
-          <h2 class="fw-bold mb-1 fs-4 text-dark">Campus Work Orders Directory</h2>
-          <p class="text-secondary small mb-0">Search, filter, assign, and track maintenance operations in real-time.</p>
+          <h2 class="fw-bold mb-1 fs-4" style="color: var(--text-main);">Campus Work Orders Directory</h2>
+          <p class="small mb-0" style="color: var(--text-muted);">Search, filter, assign, and track maintenance operations in real-time. Press <kbd class="small" style="background: var(--bg-muted); color: var(--text-main); border: 1px solid var(--border-color); font-size: 0.7rem;">/</kbd> to search.</p>
         </div>
         <div class="d-flex gap-2">
-          <button class="btn btn-outline-secondary btn-sm" onclick="exportComplaintsCsv()">
-            <i class="fa-solid fa-file-csv me-1"></i> Export CSV
+          <button class="btn btn-outline-secondary btn-sm" onclick="exportFilteredCsv()">
+            <i class="fa-solid fa-file-csv me-1"></i> Export Filtered CSV
           </button>
           <button class="btn btn-primary btn-sm" onclick="switchView('newrequest')">
             <i class="fa-solid fa-plus me-1"></i> Submit Work Order
@@ -580,13 +715,23 @@
         </div>
       </div>
 
+      <!-- Quick Status Filter Pills Bar -->
+      <div class="d-flex align-items-center gap-1 mb-3 overflow-x-auto pb-1" id="status-quick-pills">
+        <button class="filter-tab-pill active" onclick="setQuickStatus('')">All Tickets <span class="badge bg-secondary-subtle text-secondary" id="count-all">0</span></button>
+        <button class="filter-tab-pill" onclick="setQuickStatus('OPEN')">Open <span class="badge bg-primary-subtle text-primary" id="count-open">0</span></button>
+        <button class="filter-tab-pill" onclick="setQuickStatus('ASSIGNED')">Assigned <span class="badge bg-info-subtle text-info" id="count-assigned">0</span></button>
+        <button class="filter-tab-pill" onclick="setQuickStatus('IN_PROGRESS')">In Progress <span class="badge bg-warning-subtle text-warning" id="count-inprogress">0</span></button>
+        <button class="filter-tab-pill" onclick="setQuickStatus('RESOLVED')">Resolved <span class="badge bg-success-subtle text-success" id="count-resolved">0</span></button>
+        <button class="filter-tab-pill" onclick="setQuickStatus('CLOSED')">Closed <span class="badge bg-secondary-subtle text-secondary" id="count-closed">0</span></button>
+      </div>
+
       <!-- Filter Controls Bar -->
       <div class="enterprise-card mb-4 p-3">
         <div class="row g-2 align-items-center">
           <div class="col-md-3">
             <div class="input-group input-group-sm">
-              <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass text-secondary"></i></span>
-              <input type="text" id="filter-search" class="form-control" placeholder="Search ticket #, title, room..." oninput="debounceApplyFilters()">
+              <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+              <input type="text" id="filter-search" class="form-control" placeholder="Search ticket #, title, room... (/)" oninput="debounceApplyFilters()">
             </div>
           </div>
           <div class="col-sm-6 col-md-2">
@@ -654,7 +799,7 @@
               </tr>
             </thead>
             <tbody id="workorders-tbody">
-              <tr><td colspan="9" class="text-center py-4 text-secondary">Loading work orders...</td></tr>
+              <tr><td colspan="9" class="text-center py-4" style="color: var(--text-muted);">Loading work orders...</td></tr>
             </tbody>
           </table>
         </div>
@@ -669,8 +814,8 @@
         <div class="col-lg-9 col-xl-8">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-              <h2 class="fw-bold mb-1 fs-4 text-dark">Submit Maintenance Request</h2>
-              <p class="text-secondary small mb-0">Fill out this official request to dispatch campus facility personnel.</p>
+              <h2 class="fw-bold mb-1 fs-4" style="color: var(--text-main);">Submit Maintenance Request</h2>
+              <p class="small mb-0" style="color: var(--text-muted);">Fill out this official request to dispatch campus facility personnel.</p>
             </div>
             <button class="btn btn-outline-secondary btn-sm" onclick="switchView('workorders')">
               &larr; Back to Directory
@@ -753,8 +898,8 @@
     <section id="view-buildings" class="app-view d-none">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2 class="fw-bold mb-1 fs-4 text-dark">Campus Facilities &amp; Buildings</h2>
-          <p class="text-secondary small mb-0">Master catalog of university physical infrastructure and academic blocks.</p>
+          <h2 class="fw-bold mb-1 fs-4" style="color: var(--text-main);">Campus Facilities &amp; Buildings</h2>
+          <p class="small mb-0" style="color: var(--text-muted);">Master catalog of university physical infrastructure and academic blocks.</p>
         </div>
         <button class="btn btn-outline-secondary btn-sm" onclick="loadBuildings()">
           <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh
@@ -762,7 +907,7 @@
       </div>
 
       <div class="row g-3" id="buildings-grid">
-        <div class="col-12 text-center py-4 text-secondary">Loading campus buildings...</div>
+        <div class="col-12 text-center py-4" style="color: var(--text-muted);">Loading campus buildings...</div>
       </div>
     </section>
 
@@ -772,8 +917,8 @@
     <section id="view-staff" class="app-view d-none">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2 class="fw-bold mb-1 fs-4 text-dark">Maintenance &amp; Engineering Technicians</h2>
-          <p class="text-secondary small mb-0">Certified facility engineers and trade technicians available for on-site dispatch.</p>
+          <h2 class="fw-bold mb-1 fs-4" style="color: var(--text-main);">Maintenance &amp; Engineering Technicians</h2>
+          <p class="small mb-0" style="color: var(--text-muted);">Certified facility engineers and trade technicians available for on-site dispatch.</p>
         </div>
         <button class="btn btn-outline-secondary btn-sm" onclick="loadStaffMembers()">
           <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh
@@ -781,7 +926,7 @@
       </div>
 
       <div class="row g-3" id="staff-grid">
-        <div class="col-12 text-center py-4 text-secondary">Loading technicians directory...</div>
+        <div class="col-12 text-center py-4" style="color: var(--text-muted);">Loading technicians directory...</div>
       </div>
     </section>
 
@@ -791,8 +936,8 @@
     <section id="view-audit" class="app-view d-none">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2 class="fw-bold mb-1 fs-4 text-dark">System Audit &amp; Compliance Trail</h2>
-          <p class="text-secondary small mb-0">Immutable chronological record of facilities operations, assignments, and status transitions.</p>
+          <h2 class="fw-bold mb-1 fs-4" style="color: var(--text-main);">System Audit &amp; Compliance Trail</h2>
+          <p class="small mb-0" style="color: var(--text-muted);">Immutable chronological record of facilities operations, assignments, and status transitions.</p>
         </div>
         <button class="btn btn-outline-secondary btn-sm" onclick="loadAuditLogs()">
           <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh Logs
@@ -812,7 +957,7 @@
               </tr>
             </thead>
             <tbody id="audit-tbody">
-              <tr><td colspan="5" class="text-center py-4 text-secondary">Loading audit trail...</td></tr>
+              <tr><td colspan="5" class="text-center py-4" style="color: var(--text-muted);">Loading audit trail...</td></tr>
             </tbody>
           </table>
         </div>
@@ -834,41 +979,46 @@
               <span id="detail-status-badge" class="badge-status open">Open</span>
               <span id="detail-priority-badge" class="badge-priority medium">Medium</span>
             </div>
-            <h5 id="detail-title" class="fw-bold mb-0 mt-1 text-dark">Work Order Title</h5>
+            <h5 id="detail-title" class="fw-bold mb-0 mt-1" style="color: var(--text-main);">Work Order Title</h5>
           </div>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary btn-sm" onclick="printWorkOrderSlip()" title="Print Field Technician Work Order Slip">
+              <i class="fa-solid fa-print me-1"></i> Print Slip
+            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
         </div>
 
         <div class="modal-body p-4">
           <!-- Information grid -->
-          <div class="row g-3 mb-4 p-3 bg-light rounded border">
+          <div class="row g-3 mb-4 p-3 rounded border" style="background: var(--bg-muted);">
             <div class="col-sm-6 col-md-3">
-              <div class="text-secondary small">Category</div>
+              <div class="small" style="color: var(--text-muted);">Category</div>
               <div class="fw-semibold small" id="detail-category">--</div>
             </div>
             <div class="col-sm-6 col-md-3">
-              <div class="text-secondary small">Building &amp; Room</div>
+              <div class="small" style="color: var(--text-muted);">Building &amp; Room</div>
               <div class="fw-semibold small" id="detail-building-room">--</div>
             </div>
             <div class="col-sm-6 col-md-3">
-              <div class="text-secondary small">Reported By</div>
+              <div class="small" style="color: var(--text-muted);">Reported By</div>
               <div class="fw-semibold small" id="detail-student">--</div>
             </div>
             <div class="col-sm-6 col-md-3">
-              <div class="text-secondary small">Assigned Staff</div>
+              <div class="small" style="color: var(--text-muted);">Assigned Staff</div>
               <div class="fw-semibold small text-primary" id="detail-assigned-staff">Unassigned</div>
             </div>
             <div class="col-12 mt-2 pt-2 border-top">
-              <div class="text-secondary small">Description</div>
-              <div class="small text-dark mt-1" id="detail-description">--</div>
+              <div class="small" style="color: var(--text-muted);">Description</div>
+              <div class="small mt-1" id="detail-description" style="color: var(--text-main);">--</div>
             </div>
           </div>
 
           <!-- Action Bar (Role Dependent: Assign / Update Status / Feedback) -->
-          <div class="mb-4 p-3 border rounded" id="detail-actions-panel">
-            <h6 class="fw-bold text-dark mb-2 small text-uppercase tracking-wider">Facilities Workflow Actions</h6>
+          <div class="mb-4 p-3 border rounded" id="detail-actions-panel" style="background: var(--bg-card);">
+            <h6 class="fw-bold mb-2 small text-uppercase tracking-wider" style="color: var(--text-main);">Facilities Workflow Actions</h6>
             
-            <!-- Admin / Staff Status Update Form -->
+            <!-- Status Update Form -->
             <div class="row g-2 align-items-center">
               <div class="col-md-5">
                 <select id="action-status-select" class="form-select form-select-sm">
@@ -889,7 +1039,7 @@
               </div>
             </div>
 
-            <!-- Admin Staff Assignment (Admin Only) -->
+            <!-- Admin Staff Assignment -->
             <div class="row g-2 align-items-center mt-2 pt-2 border-top" id="admin-assign-row">
               <div class="col-md-5">
                 <select id="action-staff-select" class="form-select form-select-sm">
@@ -911,9 +1061,9 @@
               </div>
             </div>
 
-            <!-- Student Rating Form (If Resolved) -->
+            <!-- Student Rating Form -->
             <div id="student-rating-panel" class="mt-3 pt-3 border-top d-none">
-              <span class="small fw-semibold text-dark d-block mb-1">Student Satisfaction Rating:</span>
+              <span class="small fw-semibold d-block mb-1" style="color: var(--text-main);">Student Satisfaction Rating:</span>
               <div class="d-flex gap-2 align-items-center">
                 <select id="feedback-rating-select" class="form-select form-select-sm" style="max-width: 140px;">
                   <option value="5">5 ★ (Excellent)</option>
@@ -931,15 +1081,15 @@
           <!-- Discussion & Timeline History -->
           <div class="row g-4">
             <div class="col-md-6">
-              <h6 class="fw-bold small text-uppercase text-secondary mb-3">Audit History Timeline</h6>
+              <h6 class="fw-bold small text-uppercase mb-3" style="color: var(--text-muted);">Audit History Timeline</h6>
               <div class="timeline" id="detail-timeline">
-                <div class="text-secondary small">No history entries found.</div>
+                <div class="small" style="color: var(--text-muted);">No history entries found.</div>
               </div>
             </div>
             <div class="col-md-6">
-              <h6 class="fw-bold small text-uppercase text-secondary mb-3">Operational Notes &amp; Comments</h6>
+              <h6 class="fw-bold small text-uppercase mb-3" style="color: var(--text-muted);">Operational Notes &amp; Comments</h6>
               <div id="detail-comments-list" class="mb-3" style="max-height: 220px; overflow-y: auto;">
-                <div class="text-secondary small">No comments logged.</div>
+                <div class="small" style="color: var(--text-muted);">No comments logged.</div>
               </div>
               <div class="input-group input-group-sm">
                 <input type="text" id="new-comment-text" class="form-control" placeholder="Add an official note..." onkeydown="if(event.key==='Enter') executeAddComment()">
@@ -948,6 +1098,66 @@
             </div>
           </div>
 
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden Printable Field Technician Work Order Sheet -->
+  <div id="printable-work-order" class="d-none">
+    <div style="font-family: 'Inter', sans-serif; max-width: 800px; margin: 0 auto; color: #000; padding: 20px;">
+      <div style="border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+          <h2 style="margin: 0; font-size: 20px; font-weight: bold;">STATE UNIVERSITY — CAMPUS FACILITIES OPERATIONS</h2>
+          <p style="margin: 2px 0 0; font-size: 13px; color: #444;">Physical Plant &amp; Infrastructure Maintenance Dispatch Slip</p>
+        </div>
+        <div style="text-align: right;">
+          <h3 id="print-ticket-number" style="margin: 0; font-size: 18px; font-weight: bold; font-family: monospace;">#SCM-0000</h3>
+          <p id="print-date" style="margin: 2px 0 0; font-size: 12px;"></p>
+        </div>
+      </div>
+
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px;">
+        <tr>
+          <td style="padding: 6px; border: 1px solid #999; font-weight: bold; width: 20%; background: #f0f0f0;">Subject / Issue</td>
+          <td id="print-title" colspan="3" style="padding: 6px; border: 1px solid #999;">--</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px; border: 1px solid #999; font-weight: bold; background: #f0f0f0;">Building &amp; Room</td>
+          <td id="print-location" style="padding: 6px; border: 1px solid #999; width: 30%;">--</td>
+          <td style="padding: 6px; border: 1px solid #999; font-weight: bold; width: 20%; background: #f0f0f0;">Category / Trade</td>
+          <td id="print-category" style="padding: 6px; border: 1px solid #999; width: 30%;">--</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px; border: 1px solid #999; font-weight: bold; background: #f0f0f0;">Priority Level</td>
+          <td id="print-priority" style="padding: 6px; border: 1px solid #999; font-weight: bold;">--</td>
+          <td style="padding: 6px; border: 1px solid #999; font-weight: bold; background: #f0f0f0;">Assigned Technician</td>
+          <td id="print-technician" style="padding: 6px; border: 1px solid #999;">--</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px; border: 1px solid #999; font-weight: bold; background: #f0f0f0;">Issue Details</td>
+          <td id="print-description" colspan="3" style="padding: 8px 6px; border: 1px solid #999; min-height: 80px;">--</td>
+        </tr>
+      </table>
+
+      <div style="border: 1px solid #999; padding: 12px; margin-bottom: 24px; font-size: 12px;">
+        <h4 style="margin: 0 0 8px; font-size: 13px; font-weight: bold; text-transform: uppercase;">On-Site Field Verification Checklist</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+          <div>[ &nbsp; ] Physical Hazard Isolated</div>
+          <div>[ &nbsp; ] Diagnostic Testing Executed</div>
+          <div>[ &nbsp; ] Parts / Components Replaced</div>
+          <div>[ &nbsp; ] Site Cleaned &amp; Debris Cleared</div>
+          <div>[ &nbsp; ] Functional Operations Passed</div>
+          <div>[ &nbsp; ] Location Safety Verified</div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; margin-top: 40px; font-size: 12px;">
+        <div style="width: 40%; border-top: 1px solid #000; padding-top: 4px; text-align: center;">
+          Lead Technician Signature &amp; Date
+        </div>
+        <div style="width: 40%; border-top: 1px solid #000; padding-top: 4px; text-align: center;">
+          Campus Building Supervisor / Student Sign-off
         </div>
       </div>
     </div>
@@ -1002,7 +1212,7 @@
               Authenticate
             </button>
             <div class="text-center border-top pt-2">
-              <span class="text-secondary small d-block mb-1">Pre-configured Role Credentials:</span>
+              <span class="small d-block mb-1" style="color: var(--text-muted);">Pre-configured Role Credentials:</span>
               <div class="btn-group btn-group-sm w-100">
                 <button type="button" class="btn btn-outline-secondary" onclick="fillAndLogin('admin@smartcampus.com','Admin@123')">Admin</button>
                 <button type="button" class="btn btn-outline-secondary" onclick="fillAndLogin('staff@smartcampus.com','Staff@123')">Staff</button>
@@ -1016,7 +1226,7 @@
   </div>
 
   <!-- Footer -->
-  <footer class="bg-white border-top py-3 mt-auto text-secondary small">
+  <footer class="py-3 mt-auto small" style="background: var(--bg-card); border-top: 1px solid var(--border-color); color: var(--text-muted);">
     <div class="container-fluid px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
       <div>
         &copy; 2026 <strong>SmartCampus Maintenance System</strong> — Campus Facilities &amp; Operations.
@@ -1024,7 +1234,7 @@
       <div class="d-flex gap-3">
         <span>Spring Boot 3 + H2/MySQL</span>
         <span>Enterprise REST Connected</span>
-        <a href="https://github.com/Albert101255/smart-campus-maintenance" target="_blank" class="text-secondary text-decoration-none">
+        <a href="https://github.com/Albert101255/smart-campus-maintenance" target="_blank" class="text-decoration-none" style="color: var(--text-muted);">
           <i class="fa-brands fa-github"></i> Repository
         </a>
       </div>
@@ -1034,13 +1244,14 @@
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Enterprise Application Controller Script -->
+  <!-- Application Controller Script -->
   <script>
     // -------------------------------------------------------------------------
     // Configuration & State
     // -------------------------------------------------------------------------
     const state = {
       apiBase: localStorage.getItem('scm_api_url') || (window.location.port === '8080' ? '/api' : 'http://localhost:8080/api'),
+      theme: localStorage.getItem('scm_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
       isOnline: false,
       currentUser: {
         id: 1,
@@ -1050,6 +1261,7 @@
         department: "Campus Operations & Infrastructure"
       },
       complaints: [],
+      currentDetailData: null,
       categories: [],
       buildings: [],
       staffMembers: [],
@@ -1058,9 +1270,56 @@
     };
 
     // -------------------------------------------------------------------------
+    // Theme Management
+    // -------------------------------------------------------------------------
+    function initTheme() {
+      applyTheme(state.theme);
+    }
+
+    function toggleTheme() {
+      const nextTheme = state.theme === 'dark' ? 'light' : 'dark';
+      applyTheme(nextTheme);
+    }
+
+    function applyTheme(theme) {
+      state.theme = theme;
+      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.setAttribute('data-bs-theme', theme);
+      localStorage.setItem('scm_theme', theme);
+      const icon = document.getElementById('theme-icon');
+      if (theme === 'dark') {
+        icon.className = 'fa-solid fa-sun text-warning';
+      } else {
+        icon.className = 'fa-solid fa-moon';
+      }
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Focus search with '/'
+      if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        switchView('workorders');
+        const s = document.getElementById('filter-search');
+        if (s) s.focus();
+      }
+      // Toggle theme with Ctrl+D / Cmd+D
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
+        e.preventDefault();
+        toggleTheme();
+      }
+      // Submit new ticket with Alt+N
+      if (e.altKey && e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        switchView('newrequest');
+      }
+    });
+
+    // -------------------------------------------------------------------------
     // Initialization
     // -------------------------------------------------------------------------
     document.addEventListener("DOMContentLoaded", () => {
+      initTheme();
       initApiConnection();
       document.getElementById('config-api-url').value = state.apiBase;
     });
@@ -1172,6 +1431,14 @@
           document.getElementById('stat-avg-rating').textContent = (s.avgRating || 0) + ' ★';
           document.getElementById('stat-students-count').textContent = s.totalStudents || '--';
 
+          // Update Quick Status Count Badges
+          document.getElementById('count-all').textContent = s.totalComplaints;
+          document.getElementById('count-open').textContent = s.openComplaints;
+          document.getElementById('count-assigned').textContent = s.assignedComplaints;
+          document.getElementById('count-inprogress').textContent = s.inProgressComplaints;
+          document.getElementById('count-resolved').textContent = s.resolvedComplaints;
+          document.getElementById('count-closed').textContent = s.closedComplaints;
+
           // Progress bars
           const tot = Math.max(s.totalComplaints, 1);
           document.getElementById('prog-open-val').textContent = s.openComplaints;
@@ -1232,8 +1499,8 @@
                     <span class="badge bg-primary-subtle text-primary fw-bold">${escapeHtml(b.code || 'BLD')}</span>
                     <span class="badge bg-success-subtle text-success small">Operational</span>
                   </div>
-                  <h6 class="fw-bold mb-1 text-dark">${escapeHtml(b.name)}</h6>
-                  <p class="text-secondary small mb-2">${escapeHtml(b.location || 'Central Campus')}</p>
+                  <h6 class="fw-bold mb-1" style="color: var(--text-main);">${escapeHtml(b.name)}</h6>
+                  <p class="small mb-2" style="color: var(--text-muted);">${escapeHtml(b.location || 'Central Campus')}</p>
                   <button class="btn btn-outline-secondary btn-sm w-100" style="font-size: 0.78rem;" onclick="filterByBuilding(${b.id})">
                     View Maintenance Tickets
                   </button>
@@ -1268,9 +1535,9 @@
                       <i class="fa-solid fa-user-gear"></i>
                     </div>
                     <div>
-                      <h6 class="fw-bold mb-0 text-dark">${escapeHtml(s.name)}</h6>
-                      <div class="text-secondary small">${escapeHtml(s.department || 'Facilities')}</div>
-                      <div class="text-secondary small mt-1"><i class="fa-solid fa-phone me-1"></i>${escapeHtml(s.phoneNumber || '+1 555-0100')}</div>
+                      <h6 class="fw-bold mb-0" style="color: var(--text-main);">${escapeHtml(s.name)}</h6>
+                      <div class="small" style="color: var(--text-muted);">${escapeHtml(s.department || 'Facilities')}</div>
+                      <div class="small mt-1" style="color: var(--text-muted);"><i class="fa-solid fa-phone me-1"></i>${escapeHtml(s.phoneNumber || '+1 555-0100')}</div>
                     </div>
                   </div>
                 </div>
@@ -1313,10 +1580,22 @@
       }
     }
 
+    function setQuickStatus(status) {
+      document.getElementById('filter-status').value = status;
+      document.querySelectorAll('#status-quick-pills .filter-tab-pill').forEach(btn => {
+        if (btn.getAttribute('onclick')?.includes(`'${status}'`)) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      applyFilters();
+    }
+
     function renderWorkOrdersTable(list) {
       const tbody = document.getElementById('workorders-tbody');
       if (!list || list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5 text-secondary">No work orders match the current criteria.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5" style="color: var(--text-muted);">No work orders match the current criteria.</td></tr>`;
         return;
       }
 
@@ -1324,18 +1603,18 @@
         <tr>
           <td><span class="fw-bold text-primary font-monospace">${escapeHtml(c.complaintNumber)}</span></td>
           <td>
-            <div class="fw-semibold text-dark">${escapeHtml(c.title)}</div>
-            <div class="text-secondary small text-truncate" style="max-width: 260px;">${escapeHtml(c.description || '')}</div>
+            <div class="fw-semibold" style="color: var(--text-main);">${escapeHtml(c.title)}</div>
+            <div class="small text-truncate" style="color: var(--text-muted); max-width: 260px;">${escapeHtml(c.description || '')}</div>
           </td>
-          <td><span class="badge bg-light text-dark border">${escapeHtml(c.category?.name || 'General')}</span></td>
+          <td><span class="badge border" style="background: var(--bg-muted); color: var(--text-secondary);">${escapeHtml(c.category?.name || 'General')}</span></td>
           <td>
             <div class="small fw-semibold">${escapeHtml(c.building?.name || 'Campus')}</div>
-            <div class="text-secondary small">${escapeHtml(c.roomNumber || '')} (${escapeHtml(c.floor || '')})</div>
+            <div class="small" style="color: var(--text-muted);">${escapeHtml(c.roomNumber || '')} (${escapeHtml(c.floor || '')})</div>
           </td>
           <td><span class="badge-priority ${c.priority?.toLowerCase()}">${c.priority}</span></td>
           <td><span class="badge-status ${c.status?.toLowerCase()}">${c.status?.replace('_', ' ')}</span></td>
-          <td>${c.assignedStaff ? `<span class="small fw-semibold"><i class="fa-solid fa-user-check text-success me-1"></i>${escapeHtml(c.assignedStaff.name)}</span>` : `<span class="text-secondary small fst-italic">Unassigned</span>`}</td>
-          <td class="text-secondary small">${c.createdAt ? c.createdAt.split(' ')[0] : '--'}</td>
+          <td>${c.assignedStaff ? `<span class="small fw-semibold"><i class="fa-solid fa-user-check text-success me-1"></i>${escapeHtml(c.assignedStaff.name)}</span>` : `<span class="small fst-italic" style="color: var(--text-muted);">Unassigned</span>`}</td>
+          <td class="small" style="color: var(--text-muted);">${c.createdAt ? c.createdAt.split(' ')[0] : '--'}</td>
           <td class="text-end">
             <button class="btn btn-outline-primary btn-sm py-1 px-2" onclick="openOrderDetail(${c.id})">
               Details
@@ -1348,19 +1627,19 @@
     function renderRecentOrders(list) {
       const tbody = document.getElementById('recent-orders-tbody');
       if (!list || list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-secondary">No recent tickets logged.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4" style="color: var(--text-muted);">No recent tickets logged.</td></tr>`;
         return;
       }
       tbody.innerHTML = list.map(c => `
         <tr>
           <td><span class="fw-bold text-primary font-monospace small">${escapeHtml(c.complaintNumber)}</span></td>
           <td>
-            <div class="fw-semibold text-dark small">${escapeHtml(c.title)}</div>
+            <div class="fw-semibold small" style="color: var(--text-main);">${escapeHtml(c.title)}</div>
           </td>
           <td class="small">${escapeHtml(c.building?.code || 'BLD')} - ${escapeHtml(c.roomNumber || '')}</td>
           <td><span class="badge-priority ${c.priority?.toLowerCase()}">${c.priority}</span></td>
           <td><span class="badge-status ${c.status?.toLowerCase()}">${c.status?.replace('_', ' ')}</span></td>
-          <td class="small">${c.assignedStaff ? escapeHtml(c.assignedStaff.name) : '<span class="text-secondary fst-italic">Unassigned</span>'}</td>
+          <td class="small">${c.assignedStaff ? escapeHtml(c.assignedStaff.name) : '<span class="fst-italic" style="color: var(--text-muted);">Unassigned</span>'}</td>
         </tr>
       `).join('');
     }
@@ -1373,16 +1652,16 @@
           const logs = await res.json();
           const tbody = document.getElementById('audit-tbody');
           if (!logs || logs.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-secondary">No audit logs recorded.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4" style="color: var(--text-muted);">No audit logs recorded.</td></tr>`;
             return;
           }
           tbody.innerHTML = logs.map(a => `
             <tr>
-              <td class="text-secondary small font-monospace">${a.timestamp || '--'}</td>
-              <td><span class="badge bg-light text-dark border font-monospace small">${escapeHtml(a.action || '')}</span></td>
+              <td class="small font-monospace" style="color: var(--text-muted);">${a.timestamp || '--'}</td>
+              <td><span class="badge border font-monospace small" style="background: var(--bg-muted); color: var(--text-main);">${escapeHtml(a.action || '')}</span></td>
               <td class="small fw-semibold">${escapeHtml(a.entityName || '')} #${a.entityId || ''}</td>
               <td class="small">${escapeHtml(a.userName || 'System')} <span class="badge bg-secondary-subtle text-secondary" style="font-size:0.65rem;">${a.userRole || ''}</span></td>
-              <td class="small text-secondary">${escapeHtml(a.details || '')}</td>
+              <td class="small" style="color: var(--text-muted);">${escapeHtml(a.details || '')}</td>
             </tr>
           `).join('');
         }
@@ -1392,7 +1671,7 @@
     }
 
     // -------------------------------------------------------------------------
-    // Work Order Detail Modal
+    // Work Order Detail & Printable Slip
     // -------------------------------------------------------------------------
     async function openOrderDetail(id) {
       state.selectedComplaintId = id;
@@ -1400,6 +1679,7 @@
         const res = await fetch(`${state.apiBase}/complaints/${id}`, { credentials: 'include' });
         if (res.ok) {
           const c = await res.json();
+          state.currentDetailData = c;
           document.getElementById('detail-ticket-num').textContent = c.complaintNumber;
           document.getElementById('detail-title').textContent = c.title;
           document.getElementById('detail-description').textContent = c.description;
@@ -1431,29 +1711,29 @@
             timeline.innerHTML = c.history.map(h => `
               <div class="timeline-item">
                 <div class="timeline-dot"></div>
-                <div class="small fw-semibold text-dark">${escapeHtml(h.action)} ${h.newStatus ? `&rarr; <span class="badge-status ${h.newStatus.toLowerCase()}">${h.newStatus}</span>` : ''}</div>
-                <div class="text-secondary small">${escapeHtml(h.details || '')}</div>
-                <div class="text-secondary font-monospace" style="font-size: 0.7rem;">${h.performer} • ${h.timestamp}</div>
+                <div class="small fw-semibold" style="color: var(--text-main);">${escapeHtml(h.action)} ${h.newStatus ? `&rarr; <span class="badge-status ${h.newStatus.toLowerCase()}">${h.newStatus}</span>` : ''}</div>
+                <div class="small" style="color: var(--text-muted);">${escapeHtml(h.details || '')}</div>
+                <div class="font-monospace" style="color: var(--text-muted); font-size: 0.7rem;">${h.performer} • ${h.timestamp}</div>
               </div>
             `).join('');
           } else {
-            timeline.innerHTML = `<div class="text-secondary small">Ticket submitted at ${c.createdAt || 'N/A'}.</div>`;
+            timeline.innerHTML = `<div class="small" style="color: var(--text-muted);">Ticket submitted at ${c.createdAt || 'N/A'}.</div>`;
           }
 
           // Render Comments
           const commentList = document.getElementById('detail-comments-list');
           if (c.comments && c.comments.length > 0) {
             commentList.innerHTML = c.comments.map(cm => `
-              <div class="p-2 mb-2 bg-light rounded border small">
-                <div class="d-flex justify-content-between text-secondary mb-1" style="font-size: 0.72rem;">
-                  <span class="fw-semibold text-dark">${escapeHtml(cm.authorName)} (${cm.authorRole})</span>
+              <div class="p-2 mb-2 rounded border small" style="background: var(--bg-muted);">
+                <div class="d-flex justify-content-between mb-1" style="color: var(--text-muted); font-size: 0.72rem;">
+                  <span class="fw-semibold" style="color: var(--text-main);">${escapeHtml(cm.authorName)} (${cm.authorRole})</span>
                   <span>${cm.timestamp || ''}</span>
                 </div>
-                <div class="text-dark">${escapeHtml(cm.content)}</div>
+                <div style="color: var(--text-main);">${escapeHtml(cm.content)}</div>
               </div>
             `).join('');
           } else {
-            commentList.innerHTML = `<div class="text-secondary small fst-italic">No official comments logged yet.</div>`;
+            commentList.innerHTML = `<div class="small fst-italic" style="color: var(--text-muted);">No official comments logged yet.</div>`;
           }
 
           const modal = new bootstrap.Modal(document.getElementById('modal-order-detail'));
@@ -1462,6 +1742,24 @@
       } catch (err) {
         showToast('Error', 'Unable to fetch work order details: ' + err.message, 'danger');
       }
+    }
+
+    function printWorkOrderSlip() {
+      const c = state.currentDetailData;
+      if (!c) return;
+      document.getElementById('print-ticket-number').textContent = c.complaintNumber;
+      document.getElementById('print-date').textContent = 'Dispatched: ' + (c.createdAt || new Date().toISOString().split('T')[0]);
+      document.getElementById('print-title').textContent = c.title;
+      document.getElementById('print-location').textContent = `${c.building?.name || ''} - Room ${c.roomNumber || ''} (${c.floor || ''})`;
+      document.getElementById('print-category').textContent = c.category?.name || 'General Maintenance';
+      document.getElementById('print-priority').textContent = c.priority;
+      document.getElementById('print-technician').textContent = c.assignedStaff ? `${c.assignedStaff.name} (${c.assignedStaff.department})` : 'Unassigned';
+      document.getElementById('print-description').textContent = c.description + (c.locationDescription ? `\nLandmarks: ${c.locationDescription}` : '');
+
+      const printEl = document.getElementById('printable-work-order');
+      printEl.classList.remove('d-none');
+      window.print();
+      printEl.classList.add('d-none');
     }
 
     async function executeStatusUpdate() {
@@ -1701,6 +1999,41 @@
     }
 
     // -------------------------------------------------------------------------
+    // Client-Side Filtered CSV Export
+    // -------------------------------------------------------------------------
+    function exportFilteredCsv() {
+      if (!state.complaints || state.complaints.length === 0) {
+        showToast('Warning', 'No work orders to export', 'warning');
+        return;
+      }
+
+      const headers = ["Ticket ID", "Title", "Category", "Building", "Room", "Floor", "Priority", "Status", "Assigned Staff", "Reported Date"];
+      const rows = state.complaints.map(c => [
+        `"${c.complaintNumber || ''}"`,
+        `"${(c.title || '').replace(/"/g, '""')}"`,
+        `"${c.category?.name || ''}"`,
+        `"${c.building?.name || ''}"`,
+        `"${c.roomNumber || ''}"`,
+        `"${c.floor || ''}"`,
+        `"${c.priority || ''}"`,
+        `"${c.status || ''}"`,
+        `"${c.assignedStaff?.name || 'Unassigned'}"`,
+        `"${c.createdAt || ''}"`
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `campus_work_orders_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Exported', 'Filtered work orders downloaded as CSV', 'success');
+    }
+
+    // -------------------------------------------------------------------------
     // Utilities & Toast
     // -------------------------------------------------------------------------
     function filterByBuilding(bId) {
@@ -1724,11 +2057,9 @@
       document.getElementById('filter-priority').value = '';
       document.getElementById('filter-building').value = '';
       document.getElementById('filter-category').value = '';
+      document.querySelectorAll('#status-quick-pills .filter-tab-pill').forEach(b => b.classList.remove('active'));
+      document.querySelector('#status-quick-pills .filter-tab-pill')?.classList.add('active');
       loadWorkOrders();
-    }
-
-    function exportComplaintsCsv() {
-      window.location.href = `${state.apiBase.replace('/api', '')}/admin/reports/export/complaints.csv`;
     }
 
     function showToast(title, message, type = 'info') {
@@ -1759,7 +2090,6 @@
     }
 
     function loadMockFallbackData() {
-      // Clean fallback if user views static file without running backend
       state.categories = [
         { id: 1, name: "Electrical" },
         { id: 2, name: "Plumbing" },

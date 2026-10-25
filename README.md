@@ -1,145 +1,135 @@
-> **Live Interactive Portal:** [https://albert101255.github.io/smart-campus-maintenance/](https://albert101255.github.io/smart-campus-maintenance/)
+# Smart Campus Facilities & Maintenance Management System
 
-# Smart Campus Complaint & Maintenance Management System
+> **Live Interactive Preview:** [https://albert101255.github.io/smart-campus-maintenance/](https://albert101255.github.io/smart-campus-maintenance/)  
+> **Local Full-Stack Server:** [http://localhost:8080/](http://localhost:8080/)
 
-> **Live Interactive Demo:** [https://albert101255.github.io/smart-campus-maintenance/](https://albert101255.github.io/smart-campus-maintenance/)
+An enterprise-grade facilities maintenance and incident management platform built with **Spring Boot 3**, **Spring Security**, **Spring Data JPA / Hibernate**, and a responsive modern dashboard with dark/light themes, real-time KPI metrics, printable dispatch slips, and strict **Role-Based Access Control (RBAC)**.
 
-A Java/Spring Boot application for reporting campus infrastructure problems, assigning maintenance staff, tracking complaint status and SLA deadlines, recording audit history, and collecting student feedback.
+---
 
-## Why I built it
+## 🏛️ System Overview & Architecture
 
-Campus maintenance requests are often scattered across informal channels. This project models a single workflow where students report issues, administrators assign and monitor them, and maintenance staff update the repair process.
+Campus maintenance operations frequently suffer from lost reports, untracked turnaround times, and lack of accountability. This system provides a centralized institutional lifecycle for logging, prioritizing, assigning, resolving, and rating facility issues across campus buildings.
 
-## Core workflow
-
-```text
-Student submits complaint
-        |
-        v
-      OPEN
-        |
-        v
-Admin reviews + assigns technician
-        |
-        v
-    ASSIGNED
-        |
-        v
-Staff starts work
-        |
-        v
-   IN_PROGRESS
-        |
-        v
-Staff resolves issue
-        |
-        v
-    RESOLVED
-        |
-        v
-Student verifies + leaves feedback
-        |
-        v
-      CLOSED
+```
+       [ Student ]                [ Administrator ]              [ Technician ]
+  (Lodge / Track Issues)       (Dispatch / Audit / SLA)      (Repair / Update State)
+            |                             |                             |
+            +-----------------------------+-----------------------------+
+                                          |
+                              [ REST API / Thymeleaf ]
+                               (Spring Security RBAC)
+                                          |
+                              [ Service Business Logic ]
+                                (SLA / Audit / Events)
+                                          |
+                             [ JPA Entities & Repos ]
+                                          |
+                         [ Relational Database (H2 / MySQL) ]
 ```
 
-## Features
+---
 
-### Student
-- Submit complaints with location and photo information
-- Track complaint status
-- Review resolution
-- Leave feedback/rating
+## 🔑 Dedicated Role Credentials & Access Controls
 
-### Administrator
-- Review and prioritize complaints
-- Assign maintenance staff
-- Track SLA/overdue complaints
-- Manage users, buildings and categories
-- Export CSV reports
-- View dashboard analytics
+The portal enforces strict role boundaries across both backend API endpoints (`403 Forbidden` checks) and dynamic frontend navigation:
 
-### Maintenance staff
-- View assigned tasks
-- Start and update work
-- Add progress notes and completion evidence
-- Mark issues resolved
+| Role | Default Credentials | Permitted Capabilities | Strict Restrictions |
+| :--- | :--- | :--- | :--- |
+| **Student** | `student@smartcampus.com`<br>`Student@123` | • Lodge new maintenance work orders<br>• View own complaints & add student comments<br>• Star satisfaction rating (1–5 ★) upon resolution<br>• Campus buildings directory | ❌ **No Audit Log**<br>❌ **No Dispatch/Assign Staff**<br>❌ **No Global Work Orders** |
+| **Administrator** | `admin@smartcampus.com`<br>`Admin@123` | • Executive KPI dashboard & SLA monitoring<br>• Global work order tracking & filtering<br>• Dispatch technicians & configure priority<br>• System audit log inspection & CSV export | ❌ **No Raise/Submit Complaint**<br>*(Admins oversee & monitor operations)* |
+| **Technician / Staff** | `staff@smartcampus.com`<br>`Staff@123` | • Assigned work order queue<br>• State transition (`IN_PROGRESS`, `ON_HOLD`, `RESOLVED`)<br>• Printable field technician dispatch slip<br>• Add diagnostic notes | ❌ **No Submit Complaint**<br>❌ **No Audit Log**<br>❌ **No Reassigning Technicians** |
 
-## Technology
+---
 
-- Java 21
-- Spring Boot 3.3.4
-- Spring MVC
-- Spring Security
-- Spring Data JPA / Hibernate
-- Thymeleaf
-- Bootstrap 5
-- Chart.js
-- MySQL 8
-- H2 for local/demo execution
-
-## Architecture
-
-The application uses a layered Spring structure:
+## 🔄 Core Work Order Lifecycle & SLA Model
 
 ```text
-Controller
-   |
-Service
-   |
-Repository
-   |
-Database
+Student Submits Request (OPEN)
+         |
+         v
+Admin Reviews & Assigns Staff (ASSIGNED)
+         |
+         v
+Technician Begins Field Inspection (IN_PROGRESS)
+         |
+    +----+---------------------------+
+    |                                |
+    v (Awaiting Parts)               v
+(ON_HOLD)                   Technician Completes Repair (RESOLVED)
+    |                                |
+    +---> (IN_PROGRESS)              v
+                            Student Rates & Closes Ticket (CLOSED)
 ```
 
-Domain objects include users, complaints, complaint history, buildings, categories, comments, notifications and feedback.
+### SLA Resolution Targets
+- **CRITICAL:** 4 Hours (Campus emergency / safety hazards)
+- **HIGH:** 12 Hours (Academic & lecture hall interruptions)
+- **MEDIUM:** 24 Hours (General equipment defects)
+- **LOW:** 48 Hours (Cosmetic / minor maintenance)
 
-## Run locally
+---
 
-### Requirements
+## 🚀 REST API Endpoints
 
-- JDK 21+
+All endpoints are guarded by session authentication and role validation:
+
+| Method | Endpoint | Access Role | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/health` | Public | System status, database health, complaint count |
+| `POST` | `/api/auth/login` | Public | Session authentication via email & password |
+| `GET` | `/api/auth/me` | Authenticated | Current authenticated user profile & permissions |
+| `POST` | `/api/auth/logout` | Authenticated | Invalidates user session |
+| `GET` | `/api/dashboard/stats` | Authenticated | Aggregated metrics, resolution rate, SLA breaches |
+| `GET` | `/api/complaints` | Role-Filtered | Students see own; Staff see assigned; Admin sees all |
+| `POST` | `/api/complaints` | `STUDENT` | Lodge new maintenance complaint (403 for Admin) |
+| `GET` | `/api/complaints/{id}` | Authenticated | Detailed ticket view with timeline and comment logs |
+| `POST` | `/api/complaints/{id}/assign` | `ADMIN` | Dispatch technician & set priority (403 for others) |
+| `POST` | `/api/complaints/{id}/status` | `STAFF`, `ADMIN`| Transition repair status |
+| `POST` | `/api/complaints/{id}/comments`| Authenticated | Add diagnostic or follow-up note |
+| `POST` | `/api/complaints/{id}/feedback`| `STUDENT` | Submit 1–5 star rating on resolved tickets |
+| `GET` | `/api/audit` | `ADMIN` | System-wide immutable audit trail (403 for others) |
+| `GET` | `/api/categories` | Authenticated | Active facility categories list |
+| `GET` | `/api/buildings` | Authenticated | Campus buildings and facility blocks |
+| `GET` | `/api/staff` | Authenticated | Maintenance trade technicians directory |
+
+---
+
+## 🛠️ Technology Stack
+
+- **Backend:** Java 21 / 27, Spring Boot 3.5.x, Spring MVC, Spring Security, Spring Data JPA, Hibernate
+- **Database:** H2 In-Memory DB (MySQL compatibility mode for zero-setup demo) / MySQL 8 for production
+- **Frontend:** HTML5, CSS3 Variables, Bootstrap 5.3, FontAwesome 6, native client-side CSV generator, print styles
+- **Design System:** Dark / Light theme toggle (`Ctrl + D`), responsive mobile drawer navigation, quick status tabs
+
+---
+
+## 💻 Running Locally
+
+### Prerequisites
+- Java JDK 21+
 - Maven 3.9+
-- MySQL 8 optional; H2 can be used for local/demo execution
 
+### Build and Launch
 ```bash
+# Clone the repository
 git clone https://github.com/Albert101255/smart-campus-maintenance.git
 cd smart-campus-maintenance
 
-mvn clean package
-mvn spring-boot:run
+# Package the application
+mvn clean package -DskipTests
+
+# Run the Spring Boot JAR
+java -jar target/smart-campus-maintenance-1.0.0-SNAPSHOT.jar
 ```
 
-Then open:
-
-```text
-http://localhost:8080
+Once running, navigate to:
+```
+http://localhost:8080/
 ```
 
-## Development data
-
-The project includes local development accounts/data to make the workflow easier to demonstrate. These credentials are for local development only and should never be reused on a public deployment.
-
-## SLA model
-
-Priority levels map to target resolution windows:
-
-- CRITICAL — 4 hours
-- HIGH — 12 hours
-- MEDIUM — 24 hours
-- LOW — 48 hours
-
-The application uses these values to identify overdue work.
-
-## Project status
-
-This is an academic/portfolio project, not a claim of production deployment. It is intended to demonstrate Java full-stack development, Spring Security, role-based workflows, relational data modelling and maintenance-process automation.
-
-## Next improvements
-
-- Automated tests for service and controller layers
-- Screenshots / short demo video
-- CI workflow
-- Email/SMS notifications
-- QR-based building/room selection
-- AI-assisted complaint categorization as an optional future feature
+### Sign In
+Use any of the institutional accounts:
+- **Student:** `student@smartcampus.com` / `Student@123`
+- **Admin:** `admin@smartcampus.com` / `Admin@123`
+- **Technician:** `staff@smartcampus.com` / `Staff@123`

@@ -21,8 +21,8 @@ public class HomeController {
     private UserService userService;
 
     @GetMapping("/")
-    public String index(Authentication authentication) {
-        if (authentication != null && authentication.isAuthenticated()) {
+    public String index(@RequestParam(value = "legacy", required = false) Boolean legacy, Authentication authentication) {
+        if (Boolean.TRUE.equals(legacy) && authentication != null && authentication.isAuthenticated()) {
             String role = authentication.getAuthorities().iterator().next().getAuthority();
             if ("ROLE_ADMIN".equals(role)) {
                 return "redirect:/admin/dashboard";

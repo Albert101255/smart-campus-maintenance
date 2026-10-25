@@ -1,114 +1,1779 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Campus Maintenance Portal — Report. Track. Resolve.</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
-    <link th:href="@{/css/style.css}" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Campus Maintenance — Enterprise Facilities Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1e40af;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --navy-900: #0f172a;
+      --navy-800: #1e293b;
+      --navy-700: #334155;
+      --slate-500: #64748b;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --success: #15803d;
+      --success-bg: #dcfce7;
+      --warning: #b45309;
+      --warning-bg: #fef3c7;
+      --danger: #b91c1c;
+      --danger-bg: #fee2e2;
+      --info: #0369a1;
+      --info-bg: #e0f2fe;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--slate-50);
+      color: var(--navy-900);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Institutional Navbar */
+    .app-header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--slate-200);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1020;
+    }
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      color: #ffffff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    }
+    .nav-pill-btn {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--navy-700);
+      padding: 0.5rem 0.85rem;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+    }
+    .nav-pill-btn:hover {
+      color: var(--primary);
+      background-color: var(--slate-100);
+    }
+    .nav-pill-btn.active {
+      color: var(--primary);
+      background-color: var(--primary-light);
+      border-color: #bfdbfe;
+      font-weight: 600;
+    }
+    /* Server connection pill */
+    .connection-pill {
+      font-size: 0.78rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border: 1px solid var(--slate-200);
+      background: #ffffff;
+      cursor: pointer;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #94a3b8;
+    }
+    .status-dot.online {
+      background-color: #16a34a;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+    }
+    .status-dot.offline {
+      background-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+    }
+    /* KPI Card */
+    .stat-card {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 1.25rem 1.4rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      height: 100%;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .stat-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    .stat-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--slate-500);
+      margin-bottom: 0.35rem;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      line-height: 1.1;
+    }
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+    /* Enterprise Data Table */
+    .enterprise-card {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+    }
+    .enterprise-card-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--slate-200);
+      background: #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .table-enterprise {
+      margin-bottom: 0;
+      font-size: 0.88rem;
+    }
+    .table-enterprise thead th {
+      background-color: var(--slate-50);
+      color: var(--slate-500);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--slate-200);
+      padding: 0.75rem 1rem;
+      white-space: nowrap;
+    }
+    .table-enterprise tbody td {
+      padding: 0.85rem 1rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #f1f5f9;
+      color: var(--navy-800);
+    }
+    .table-enterprise tbody tr:hover td {
+      background-color: #f8fafc;
+    }
+    /* Status Badges */
+    .badge-status {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 1px solid transparent;
+      text-transform: capitalize;
+    }
+    .badge-status.open {
+      background-color: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+    .badge-status.assigned {
+      background-color: #f5f3ff;
+      color: #6d28d9;
+      border-color: #ddd6fe;
+    }
+    .badge-status.in_progress {
+      background-color: #fefce8;
+      color: #a16207;
+      border-color: #fef08a;
+    }
+    .badge-status.on_hold {
+      background-color: #fff7ed;
+      color: #c2410c;
+      border-color: #ffedd5;
+    }
+    .badge-status.resolved {
+      background-color: #f0fdf4;
+      color: #15803d;
+      border-color: #bbf7d0;
+    }
+    .badge-status.closed {
+      background-color: #f8fafc;
+      color: #475569;
+      border-color: #cbd5e1;
+    }
+    .badge-priority {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .badge-priority.critical {
+      background-color: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+    .badge-priority.high {
+      background-color: #fff7ed;
+      color: #c2410c;
+      border: 1px solid #fed7aa;
+    }
+    .badge-priority.medium {
+      background-color: #f0f9ff;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+    .badge-priority.low {
+      background-color: #f8fafc;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+    }
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 1.5rem;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: var(--slate-200);
+    }
+    .timeline-item {
+      position: relative;
+      padding-bottom: 1.25rem;
+    }
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+    .timeline-dot {
+      position: absolute;
+      left: -1.5rem;
+      top: 3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid var(--primary);
+    }
+    /* Custom Toast */
+    .toast-container {
+      position: fixed;
+      top: 80px;
+      right: 24px;
+      z-index: 1080;
+    }
+  </style>
 </head>
-<body class="bg-light">
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3">
-        <div class="container">
-            <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/">
-                <i class="fas fa-tools text-primary fs-3"></i> SmartCampus
-            </a>
-            <div class="d-flex gap-2">
-                <a href="/login" class="btn btn-outline-light px-4">Log In</a>
-                <a href="/register" class="btn btn-primary px-4">Register as Student</a>
-            </div>
-        </div>
-    </nav>
+<body>
 
-    <!-- Hero Section -->
-    <section class="py-5 text-center text-white bg-primary bg-gradient shadow-sm">
-        <div class="container py-4">
-            <h1 class="display-4 fw-bold mb-3">Smart Campus Maintenance</h1>
-            <p class="lead mb-4 mx-auto" style="max-width: 700px;">
-                A centralized, automated platform for reporting, assigning, tracking, and resolving infrastructure and maintenance issues across campus.
-            </p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="/register" class="btn btn-light btn-lg px-4 fw-semibold text-primary shadow">Report an Issue</a>
-                <a href="/login" class="btn btn-outline-light btn-lg px-4 fw-semibold">Sign In to Dashboard</a>
+  <!-- Enterprise Top Navigation Bar -->
+  <header class="app-header py-2">
+    <div class="container-fluid px-4">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        
+        <!-- Institutional Logo & System Title -->
+        <div class="d-flex align-items-center gap-3">
+          <div class="brand-mark">
+            <i class="fa-solid fa-building-shield"></i>
+          </div>
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="fw-bold text-dark fs-5 tracking-tight">SmartCampus</span>
+              <span class="badge bg-light text-secondary border fw-normal" style="font-size: 0.72rem;">Facilities Ops</span>
             </div>
+            <div class="text-secondary small" style="font-size: 0.76rem;">Campus Infrastructure & Maintenance Portal</div>
+          </div>
         </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="d-none d-lg-flex align-items-center gap-1">
+          <button class="nav-pill-btn active" onclick="switchView('dashboard')">
+            <i class="fa-solid fa-chart-line"></i> Dashboard
+          </button>
+          <button class="nav-pill-btn" onclick="switchView('workorders')">
+            <i class="fa-solid fa-list-check"></i> Work Orders
+          </button>
+          <button class="nav-pill-btn" onclick="switchView('newrequest')">
+            <i class="fa-solid fa-circle-plus text-primary"></i> Submit Request
+          </button>
+          <button class="nav-pill-btn" onclick="switchView('buildings')">
+            <i class="fa-regular fa-building"></i> Buildings
+          </button>
+          <button class="nav-pill-btn" onclick="switchView('staff')">
+            <i class="fa-solid fa-helmet-safety"></i> Technicians
+          </button>
+          <button class="nav-pill-btn" onclick="switchView('audit')">
+            <i class="fa-solid fa-clock-rotate-left"></i> Audit Log
+          </button>
+        </nav>
+
+        <!-- Right Side: Server Indicator & User Session Context -->
+        <div class="d-flex align-items-center gap-2">
+          
+          <!-- API Server Status Badge -->
+          <button class="connection-pill" onclick="openServerConfigModal()" title="Click to check or configure API endpoint">
+            <span class="status-dot" id="server-status-dot"></span>
+            <span id="server-status-text" class="text-secondary">Checking Backend...</span>
+          </button>
+
+          <!-- User Role Dropdown -->
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2 dropdown-toggle px-3 py-1" type="button" data-bs-toggle="dropdown">
+              <i class="fa-solid fa-user-circle fs-6"></i>
+              <span id="current-user-name" class="fw-semibold">Admin (Campus Ops)</span>
+              <span id="current-user-role-badge" class="badge bg-primary text-white" style="font-size: 0.68rem;">ADMIN</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 0.85rem;">
+              <li class="dropdown-header text-uppercase text-secondary" style="font-size: 0.7rem;">Institutional Switcher</li>
+              <li><button class="dropdown-item d-flex align-items-center gap-2" onclick="switchUserRole('ADMIN')"><i class="fa-solid fa-shield-halved text-danger"></i> Campus Administrator</button></li>
+              <li><button class="dropdown-item d-flex align-items-center gap-2" onclick="switchUserRole('STAFF')"><i class="fa-solid fa-wrench text-warning"></i> Maintenance Technician (Ravi K.)</button></li>
+              <li><button class="dropdown-item d-flex align-items-center gap-2" onclick="switchUserRole('STUDENT')"><i class="fa-solid fa-graduation-cap text-primary"></i> Student (Alex Morgan)</button></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item d-flex align-items-center gap-2" onclick="openLoginModal()"><i class="fa-solid fa-right-to-bracket text-secondary"></i> Credentials Sign In</button></li>
+              <li><button class="dropdown-item d-flex align-items-center gap-2 text-danger" onclick="logoutSession()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out</button></li>
+            </ul>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Mobile Navigation Pills -->
+      <div class="d-flex d-lg-none overflow-x-auto gap-1 mt-2 pt-2 border-top">
+        <button class="nav-pill-btn active py-1 px-2" onclick="switchView('dashboard')">Dashboard</button>
+        <button class="nav-pill-btn py-1 px-2" onclick="switchView('workorders')">Work Orders</button>
+        <button class="nav-pill-btn py-1 px-2" onclick="switchView('newrequest')">Submit</button>
+        <button class="nav-pill-btn py-1 px-2" onclick="switchView('buildings')">Buildings</button>
+        <button class="nav-pill-btn py-1 px-2" onclick="switchView('staff')">Staff</button>
+        <button class="nav-pill-btn py-1 px-2" onclick="switchView('audit')">Audit</button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Offline Notice Banner (Shows automatically if backend is unreachable) -->
+  <div id="backend-offline-banner" class="alert alert-warning border-0 rounded-0 mb-0 py-2 text-center small d-none" role="alert">
+    <i class="fa-solid fa-triangle-exclamation me-1"></i>
+    <strong>Backend Spring Boot Server Offline:</strong> Unable to connect to <code id="offline-target-url">http://localhost:8080/api</code>.
+    Start the Spring Boot server or <a href="javascript:void(0)" onclick="openServerConfigModal()" class="alert-link text-decoration-underline">configure target API host</a>.
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="container-fluid px-4 py-4 flex-grow-1">
+
+    <!-- ================================================================= -->
+    <!-- VIEW 1: EXECUTIVE DASHBOARD                                        -->
+    <!-- ================================================================= -->
+    <section id="view-dashboard" class="app-view">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+          <h2 class="fw-bold mb-1 fs-4 text-dark">Facilities Operations Dashboard</h2>
+          <p class="text-secondary small mb-0">Overview of campus infrastructure status, work orders, and resolution metrics.</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm" onclick="loadDashboardStats()">
+            <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh Metrics
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="switchView('newrequest')">
+            <i class="fa-solid fa-plus me-1"></i> New Request
+          </button>
+        </div>
+      </div>
+
+      <!-- Top Metric Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="stat-title">Total Work Orders</div>
+                <div class="stat-value" id="stat-total-complaints">--</div>
+                <div class="text-secondary small mt-1"><span id="stat-students-count">--</span> registered students</div>
+              </div>
+              <div class="stat-icon bg-primary-subtle text-primary">
+                <i class="fa-solid fa-clipboard-list"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="stat-title">Open &amp; In Progress</div>
+                <div class="stat-value text-warning" id="stat-open-complaints">--</div>
+                <div class="text-secondary small mt-1"><span id="stat-inprogress-count">--</span> currently under repair</div>
+              </div>
+              <div class="stat-icon bg-warning-subtle text-warning">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="stat-title">Critical &amp; High Urgency</div>
+                <div class="stat-value text-danger" id="stat-critical-complaints">--</div>
+                <div class="text-secondary small mt-1"><span id="stat-overdue-count">0</span> escalated / overdue</div>
+              </div>
+              <div class="stat-icon bg-danger-subtle text-danger">
+                <i class="fa-solid fa-fire"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="stat-title">Resolution Rate &amp; Rating</div>
+                <div class="stat-value text-success" id="stat-resolution-rate">--%</div>
+                <div class="text-secondary small mt-1">Average Satisfaction: <span id="stat-avg-rating" class="fw-semibold text-dark">-- ★</span></div>
+              </div>
+              <div class="stat-icon bg-success-subtle text-success">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Split Row: Priority Status Distribution + Recent Work Orders -->
+      <div class="row g-4 mb-4">
+        <div class="col-lg-4">
+          <div class="enterprise-card h-100">
+            <div class="enterprise-card-header">
+              <span class="fw-semibold">Work Order Lifecycle Breakdown</span>
+            </div>
+            <div class="p-4">
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                  <span class="text-secondary">Open / New Submissions</span>
+                  <span class="fw-semibold" id="prog-open-val">0</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-primary" id="prog-open-bar" style="width: 0%"></div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                  <span class="text-secondary">Assigned to Technicians</span>
+                  <span class="fw-semibold" id="prog-assigned-val">0</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-info" id="prog-assigned-bar" style="width: 0%"></div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                  <span class="text-secondary">In Progress / Repairs Ongoing</span>
+                  <span class="fw-semibold" id="prog-inprogress-val">0</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-warning" id="prog-inprogress-bar" style="width: 0%"></div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                  <span class="text-secondary">Resolved &amp; Closed</span>
+                  <span class="fw-semibold" id="prog-resolved-val">0</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-success" id="prog-resolved-bar" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div class="mt-4 p-3 bg-light rounded border small">
+                <div class="fw-semibold text-dark mb-1"><i class="fa-solid fa-headset text-primary me-1"></i> Facilities Dispatch Office</div>
+                <p class="text-secondary mb-0">Emergency infrastructure support is available 24/7 across campus buildings. Technicians respond to Critical priority tickets within 1 hour.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-8">
+          <div class="enterprise-card h-100">
+            <div class="enterprise-card-header">
+              <span class="fw-semibold">Recent Campus Maintenance Work Orders</span>
+              <button class="btn btn-link btn-sm text-decoration-none p-0" onclick="switchView('workorders')">View All &rarr;</button>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-enterprise">
+                <thead>
+                  <tr>
+                    <th>Ticket #</th>
+                    <th>Issue Summary</th>
+                    <th>Location</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Assigned Staff</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-orders-tbody">
+                  <tr><td colspan="6" class="text-center py-4 text-secondary">Loading real work orders...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- How it works -->
-    <section class="py-5">
-        <div class="container">
-            <h2 class="text-center fw-bold mb-5">Simple 3-Step Resolution Workflow</h2>
-            <div class="row g-4">
-                <div class="col-md-4 text-center">
-                    <div class="card card-stats h-100 p-4 border-0 shadow-sm">
-                        <div class="stat-icon-wrapper bg-primary text-white mx-auto mb-3" style="width:64px; height:64px; font-size:1.8rem;">
-                            1
-                        </div>
-                        <h4 class="fw-bold">1. Report</h4>
-                        <p class="text-muted">Students submit campus infrastructure issues with location details, category, urgency, and photos.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 text-center">
-                    <div class="card card-stats h-100 p-4 border-0 shadow-sm">
-                        <div class="stat-icon-wrapper bg-warning text-dark mx-auto mb-3" style="width:64px; height:64px; font-size:1.8rem;">
-                            2
-                        </div>
-                        <h4 class="fw-bold">2. Assign &amp; Track</h4>
-                        <p class="text-muted">Admins review complaints, set priority, assign technicians, and monitor real-time SLA metrics.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 text-center">
-                    <div class="card card-stats h-100 p-4 border-0 shadow-sm">
-                        <div class="stat-icon-wrapper bg-success text-white mx-auto mb-3" style="width:64px; height:64px; font-size:1.8rem;">
-                            3
-                        </div>
-                        <h4 class="fw-bold">3. Resolve &amp; Confirm</h4>
-                        <p class="text-muted">Technicians complete repairs with before/after photos. Students verify resolution and rate service.</p>
-                    </div>
-                </div>
-            </div>
+    <!-- ================================================================= -->
+    <!-- VIEW 2: WORK ORDERS LIST & FILTERING                               -->
+    <!-- ================================================================= -->
+    <section id="view-workorders" class="app-view d-none">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+          <h2 class="fw-bold mb-1 fs-4 text-dark">Campus Work Orders Directory</h2>
+          <p class="text-secondary small mb-0">Search, filter, assign, and track maintenance operations in real-time.</p>
         </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm" onclick="exportComplaintsCsv()">
+            <i class="fa-solid fa-file-csv me-1"></i> Export CSV
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="switchView('newrequest')">
+            <i class="fa-solid fa-plus me-1"></i> Submit Work Order
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Controls Bar -->
+      <div class="enterprise-card mb-4 p-3">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-3">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass text-secondary"></i></span>
+              <input type="text" id="filter-search" class="form-control" placeholder="Search ticket #, title, room..." oninput="debounceApplyFilters()">
+            </div>
+          </div>
+          <div class="col-sm-6 col-md-2">
+            <select id="filter-status" class="form-select form-select-sm" onchange="applyFilters()">
+              <option value="">All Statuses</option>
+              <option value="OPEN">Open</option>
+              <option value="ASSIGNED">Assigned</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="ON_HOLD">On Hold</option>
+              <option value="RESOLVED">Resolved</option>
+              <option value="CLOSED">Closed</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-2">
+            <select id="filter-priority" class="form-select form-select-sm" onchange="applyFilters()">
+              <option value="">All Priorities</option>
+              <option value="CRITICAL">Critical</option>
+              <option value="HIGH">High</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LOW">Low</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-2">
+            <select id="filter-building" class="form-select form-select-sm" onchange="applyFilters()">
+              <option value="">All Buildings</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-2">
+            <select id="filter-category" class="form-select form-select-sm" onchange="applyFilters()">
+              <option value="">All Categories</option>
+            </select>
+          </div>
+          <div class="col-md-1 text-end">
+            <button class="btn btn-outline-secondary btn-sm w-100" onclick="resetFilters()" title="Reset Filters">
+              <i class="fa-solid fa-rotate-left"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Work Orders Table -->
+      <div class="enterprise-card">
+        <div class="enterprise-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <span class="fw-semibold">All Registered Work Orders</span>
+            <span id="filtered-count-badge" class="badge bg-secondary-subtle text-secondary border">0</span>
+          </div>
+          <button class="btn btn-outline-secondary btn-sm" onclick="loadWorkOrders()">
+            <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-enterprise align-middle">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Issue Summary</th>
+                <th>Category</th>
+                <th>Building &amp; Room</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Assigned Staff</th>
+                <th>Reported Date</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="workorders-tbody">
+              <tr><td colspan="9" class="text-center py-4 text-secondary">Loading work orders...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
-    <!-- Pre-seeded Development Demo Accounts -->
-    <section class="py-5 bg-white border-top border-bottom">
-        <div class="container">
-            <h3 class="text-center fw-bold mb-4">Development Demo Accounts</h3>
-            <p class="text-center text-muted mb-4">Click any account role to test the system with pre-configured seed data:</p>
-            <div class="row g-3 justify-content-center">
-                <div class="col-md-4 col-lg-3">
-                    <div class="card border-primary p-3 text-center">
-                        <span class="badge bg-primary mb-2">ADMIN ROLE</span>
-                        <h6 class="fw-bold mb-1">Chief Administrator</h6>
-                        <small class="text-muted d-block mb-2">admin@smartcampus.com</small>
-                        <small class="text-muted">Password: <code>Admin@123</code></small>
-                    </div>
-                </div>
-                <div class="col-md-4 col-lg-3">
-                    <div class="card border-success p-3 text-center">
-                        <span class="badge bg-success mb-2">STUDENT ROLE</span>
-                        <h6 class="fw-bold mb-1">Alex Morgan</h6>
-                        <small class="text-muted d-block mb-2">student@smartcampus.com</small>
-                        <small class="text-muted">Password: <code>Student@123</code></small>
-                    </div>
-                </div>
-                <div class="col-md-4 col-lg-3">
-                    <div class="card border-info p-3 text-center">
-                        <span class="badge bg-info text-dark mb-2">STAFF ROLE</span>
-                        <h6 class="fw-bold mb-1">Anil Verma (IT &amp; AV)</h6>
-                        <small class="text-muted d-block mb-2">staff3@smartcampus.com</small>
-                        <small class="text-muted">Password: <code>Staff@123</code></small>
-                    </div>
-                </div>
+    <!-- ================================================================= -->
+    <!-- VIEW 3: SUBMIT WORK ORDER (FORM)                                   -->
+    <!-- ================================================================= -->
+    <section id="view-newrequest" class="app-view d-none">
+      <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h2 class="fw-bold mb-1 fs-4 text-dark">Submit Maintenance Request</h2>
+              <p class="text-secondary small mb-0">Fill out this official request to dispatch campus facility personnel.</p>
             </div>
-            <div class="text-center mt-4">
-                <a href="/login" class="btn btn-primary btn-lg px-5">Go to Login Page</a>
-            </div>
+            <button class="btn btn-outline-secondary btn-sm" onclick="switchView('workorders')">
+              &larr; Back to Directory
+            </button>
+          </div>
+
+          <div class="enterprise-card p-4">
+            <form id="new-request-form" onsubmit="handleRequestSubmit(event)">
+              <div class="row g-3 mb-3">
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">Issue Title / Summary <span class="text-danger">*</span></label>
+                  <input type="text" id="req-title" class="form-control form-control-sm" required placeholder="e.g. Overhead projector lamp failed, Room 302">
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Service Category <span class="text-danger">*</span></label>
+                  <select id="req-category" class="form-select form-select-sm" required>
+                    <option value="" disabled selected>Select category...</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Campus Building <span class="text-danger">*</span></label>
+                  <select id="req-building" class="form-select form-select-sm" required>
+                    <option value="" disabled selected>Select building...</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Floor Level <span class="text-danger">*</span></label>
+                  <input type="text" id="req-floor" class="form-control form-control-sm" required placeholder="e.g. 2nd Floor or Ground Floor">
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Room / Lab Number <span class="text-danger">*</span></label>
+                  <input type="text" id="req-room" class="form-control form-control-sm" required placeholder="e.g. Lab 204 or Hall B">
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">Specific Location Landmarks / Desk</label>
+                  <input type="text" id="req-location-desc" class="form-control form-control-sm" placeholder="e.g. Near the north fire exit corridor, row 4">
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Urgency Level <span class="text-danger">*</span></label>
+                  <select id="req-priority" class="form-select form-select-sm" required>
+                    <option value="LOW">Low — Routine maintenance (within 5 days)</option>
+                    <option value="MEDIUM" selected>Medium — Standard repair (within 48 hours)</option>
+                    <option value="HIGH">High — Impairs class/lab operations (within 24 hours)</option>
+                    <option value="CRITICAL">Critical — Safety hazard or severe failure (immediate)</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Contact Extension / Phone</label>
+                  <input type="text" id="req-phone" class="form-control form-control-sm" placeholder="e.g. +1 555-0111">
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">Comprehensive Description <span class="text-danger">*</span></label>
+                  <textarea id="req-desc" class="form-control form-control-sm" rows="4" required placeholder="Describe what is broken, visible signs of damage, error codes, or safety risks..."></textarea>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchView('workorders')">Cancel</button>
+                <button type="submit" id="btn-submit-order" class="btn btn-primary btn-sm px-4">
+                  <i class="fa-solid fa-paper-plane me-1"></i> Submit Work Order
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
     </section>
 
-    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <!-- ================================================================= -->
+    <!-- VIEW 4: BUILDINGS DIRECTORY                                        -->
+    <!-- ================================================================= -->
+    <section id="view-buildings" class="app-view d-none">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="fw-bold mb-1 fs-4 text-dark">Campus Facilities &amp; Buildings</h2>
+          <p class="text-secondary small mb-0">Master catalog of university physical infrastructure and academic blocks.</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" onclick="loadBuildings()">
+          <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh
+        </button>
+      </div>
+
+      <div class="row g-3" id="buildings-grid">
+        <div class="col-12 text-center py-4 text-secondary">Loading campus buildings...</div>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- VIEW 5: STAFF & TECHNICIANS                                       -->
+    <!-- ================================================================= -->
+    <section id="view-staff" class="app-view d-none">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="fw-bold mb-1 fs-4 text-dark">Maintenance &amp; Engineering Technicians</h2>
+          <p class="text-secondary small mb-0">Certified facility engineers and trade technicians available for on-site dispatch.</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" onclick="loadStaffMembers()">
+          <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh
+        </button>
+      </div>
+
+      <div class="row g-3" id="staff-grid">
+        <div class="col-12 text-center py-4 text-secondary">Loading technicians directory...</div>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- VIEW 6: AUDIT TRAIL LOG                                            -->
+    <!-- ================================================================= -->
+    <section id="view-audit" class="app-view d-none">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="fw-bold mb-1 fs-4 text-dark">System Audit &amp; Compliance Trail</h2>
+          <p class="text-secondary small mb-0">Immutable chronological record of facilities operations, assignments, and status transitions.</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" onclick="loadAuditLogs()">
+          <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh Logs
+        </button>
+      </div>
+
+      <div class="enterprise-card">
+        <div class="table-responsive">
+          <table class="table table-enterprise">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Action Type</th>
+                <th>Entity Affected</th>
+                <th>Operator</th>
+                <th>Operational Details</th>
+              </tr>
+            </thead>
+            <tbody id="audit-tbody">
+              <tr><td colspan="5" class="text-center py-4 text-secondary">Loading audit trail...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =================================================================== -->
+  <!-- MODAL: WORK ORDER DETAIL & WORKFLOW                                 -->
+  <!-- =================================================================== -->
+  <div class="modal fade" id="modal-order-detail" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header border-bottom py-3">
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <span id="detail-ticket-num" class="fw-bold fs-5 text-primary">#SCM-0000</span>
+              <span id="detail-status-badge" class="badge-status open">Open</span>
+              <span id="detail-priority-badge" class="badge-priority medium">Medium</span>
+            </div>
+            <h5 id="detail-title" class="fw-bold mb-0 mt-1 text-dark">Work Order Title</h5>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <!-- Information grid -->
+          <div class="row g-3 mb-4 p-3 bg-light rounded border">
+            <div class="col-sm-6 col-md-3">
+              <div class="text-secondary small">Category</div>
+              <div class="fw-semibold small" id="detail-category">--</div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+              <div class="text-secondary small">Building &amp; Room</div>
+              <div class="fw-semibold small" id="detail-building-room">--</div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+              <div class="text-secondary small">Reported By</div>
+              <div class="fw-semibold small" id="detail-student">--</div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+              <div class="text-secondary small">Assigned Staff</div>
+              <div class="fw-semibold small text-primary" id="detail-assigned-staff">Unassigned</div>
+            </div>
+            <div class="col-12 mt-2 pt-2 border-top">
+              <div class="text-secondary small">Description</div>
+              <div class="small text-dark mt-1" id="detail-description">--</div>
+            </div>
+          </div>
+
+          <!-- Action Bar (Role Dependent: Assign / Update Status / Feedback) -->
+          <div class="mb-4 p-3 border rounded" id="detail-actions-panel">
+            <h6 class="fw-bold text-dark mb-2 small text-uppercase tracking-wider">Facilities Workflow Actions</h6>
+            
+            <!-- Admin / Staff Status Update Form -->
+            <div class="row g-2 align-items-center">
+              <div class="col-md-5">
+                <select id="action-status-select" class="form-select form-select-sm">
+                  <option value="ASSIGNED">Transition &rarr; ASSIGNED</option>
+                  <option value="IN_PROGRESS">Transition &rarr; IN_PROGRESS</option>
+                  <option value="ON_HOLD">Transition &rarr; ON_HOLD</option>
+                  <option value="RESOLVED">Transition &rarr; RESOLVED</option>
+                  <option value="CLOSED">Transition &rarr; CLOSED</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <input type="text" id="action-status-notes" class="form-control form-control-sm" placeholder="Action remarks...">
+              </div>
+              <div class="col-md-3">
+                <button class="btn btn-sm btn-primary w-100" onclick="executeStatusUpdate()">
+                  Update Status
+                </button>
+              </div>
+            </div>
+
+            <!-- Admin Staff Assignment (Admin Only) -->
+            <div class="row g-2 align-items-center mt-2 pt-2 border-top" id="admin-assign-row">
+              <div class="col-md-5">
+                <select id="action-staff-select" class="form-select form-select-sm">
+                  <option value="" disabled selected>Dispatch Technician...</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <select id="action-priority-select" class="form-select form-select-sm">
+                  <option value="LOW">Priority: Low</option>
+                  <option value="MEDIUM" selected>Priority: Medium</option>
+                  <option value="HIGH">Priority: High</option>
+                  <option value="CRITICAL">Priority: Critical</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <button class="btn btn-sm btn-outline-primary w-100" onclick="executeStaffAssign()">
+                  Assign Technician
+                </button>
+              </div>
+            </div>
+
+            <!-- Student Rating Form (If Resolved) -->
+            <div id="student-rating-panel" class="mt-3 pt-3 border-top d-none">
+              <span class="small fw-semibold text-dark d-block mb-1">Student Satisfaction Rating:</span>
+              <div class="d-flex gap-2 align-items-center">
+                <select id="feedback-rating-select" class="form-select form-select-sm" style="max-width: 140px;">
+                  <option value="5">5 ★ (Excellent)</option>
+                  <option value="4">4 ★ (Good)</option>
+                  <option value="3">3 ★ (Average)</option>
+                  <option value="2">2 ★ (Fair)</option>
+                  <option value="1">1 ★ (Poor)</option>
+                </select>
+                <input type="text" id="feedback-comment-input" class="form-control form-control-sm" placeholder="Optional service feedback remarks...">
+                <button class="btn btn-sm btn-success" onclick="executeSubmitFeedback()">Submit Rating</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Discussion & Timeline History -->
+          <div class="row g-4">
+            <div class="col-md-6">
+              <h6 class="fw-bold small text-uppercase text-secondary mb-3">Audit History Timeline</h6>
+              <div class="timeline" id="detail-timeline">
+                <div class="text-secondary small">No history entries found.</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h6 class="fw-bold small text-uppercase text-secondary mb-3">Operational Notes &amp; Comments</h6>
+              <div id="detail-comments-list" class="mb-3" style="max-height: 220px; overflow-y: auto;">
+                <div class="text-secondary small">No comments logged.</div>
+              </div>
+              <div class="input-group input-group-sm">
+                <input type="text" id="new-comment-text" class="form-control" placeholder="Add an official note..." onkeydown="if(event.key==='Enter') executeAddComment()">
+                <button class="btn btn-primary" onclick="executeAddComment()">Post</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================================================================== -->
+  <!-- MODAL: SERVER CONFIGURATION                                         -->
+  <!-- =================================================================== -->
+  <div class="modal fade" id="modal-server-config" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header border-bottom py-2">
+          <h6 class="modal-title fw-bold">API Backend Configuration</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-3">
+          <label class="form-label small fw-semibold">Backend API Endpoint</label>
+          <input type="text" id="config-api-url" class="form-control form-control-sm mb-2" value="http://localhost:8080/api">
+          <div class="form-text small mb-3">Default is <code>http://localhost:8080/api</code> for local Spring Boot execution.</div>
+          <button class="btn btn-primary btn-sm w-100 mb-2" onclick="saveServerConfig()">
+            Test &amp; Connect
+          </button>
+          <button class="btn btn-outline-secondary btn-sm w-100" onclick="resetDefaultServerConfig()">
+            Reset to Localhost
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================================================================== -->
+  <!-- MODAL: CREDENTIALS SIGN IN                                          -->
+  <!-- =================================================================== -->
+  <div class="modal fade" id="modal-login" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header border-bottom py-2">
+          <h6 class="modal-title fw-bold">Account Sign In</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-3">
+          <form onsubmit="handleManualLogin(event)">
+            <div class="mb-2">
+              <label class="form-label small fw-semibold">Email Address</label>
+              <input type="email" id="login-email" class="form-control form-control-sm" required placeholder="name@smartcampus.com">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Password</label>
+              <input type="password" id="login-password" class="form-control form-control-sm" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm w-100 mb-3">
+              Authenticate
+            </button>
+            <div class="text-center border-top pt-2">
+              <span class="text-secondary small d-block mb-1">Pre-configured Role Credentials:</span>
+              <div class="btn-group btn-group-sm w-100">
+                <button type="button" class="btn btn-outline-secondary" onclick="fillAndLogin('admin@smartcampus.com','Admin@123')">Admin</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="fillAndLogin('staff@smartcampus.com','Staff@123')">Staff</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="fillAndLogin('student@smartcampus.com','Student@123')">Student</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-top py-3 mt-auto text-secondary small">
+    <div class="container-fluid px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div>
+        &copy; 2026 <strong>SmartCampus Maintenance System</strong> — Campus Facilities &amp; Operations.
+      </div>
+      <div class="d-flex gap-3">
+        <span>Spring Boot 3 + H2/MySQL</span>
+        <span>Enterprise REST Connected</span>
+        <a href="https://github.com/Albert101255/smart-campus-maintenance" target="_blank" class="text-secondary text-decoration-none">
+          <i class="fa-brands fa-github"></i> Repository
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Enterprise Application Controller Script -->
+  <script>
+    // -------------------------------------------------------------------------
+    // Configuration & State
+    // -------------------------------------------------------------------------
+    const state = {
+      apiBase: localStorage.getItem('scm_api_url') || (window.location.port === '8080' ? '/api' : 'http://localhost:8080/api'),
+      isOnline: false,
+      currentUser: {
+        id: 1,
+        name: "Campus Chief Administrator",
+        email: "admin@smartcampus.com",
+        role: "ADMIN",
+        department: "Campus Operations & Infrastructure"
+      },
+      complaints: [],
+      categories: [],
+      buildings: [],
+      staffMembers: [],
+      selectedComplaintId: null,
+      filterDebounceTimer: null
+    };
+
+    // -------------------------------------------------------------------------
+    // Initialization
+    // -------------------------------------------------------------------------
+    document.addEventListener("DOMContentLoaded", () => {
+      initApiConnection();
+      document.getElementById('config-api-url').value = state.apiBase;
+    });
+
+    async function initApiConnection() {
+      updateServerIndicator('checking', 'Connecting...');
+      try {
+        const res = await fetch(`${state.apiBase}/health`, { method: 'GET' });
+        if (res.ok) {
+          state.isOnline = true;
+          updateServerIndicator('online', 'Live Connected (Spring Boot)');
+          document.getElementById('backend-offline-banner').classList.add('d-none');
+          await checkCurrentUser();
+          await refreshAllData();
+        } else {
+          throw new Error('API Health check returned ' + res.status);
+        }
+      } catch (err) {
+        state.isOnline = false;
+        updateServerIndicator('offline', 'Backend Offline (Port 8080)');
+        document.getElementById('offline-target-url').textContent = state.apiBase;
+        document.getElementById('backend-offline-banner').classList.remove('d-none');
+        loadMockFallbackData();
+      }
+    }
+
+    function updateServerIndicator(status, text) {
+      const dot = document.getElementById('server-status-dot');
+      const label = document.getElementById('server-status-text');
+      dot.className = 'status-dot ' + (status === 'online' ? 'online' : (status === 'offline' ? 'offline' : ''));
+      label.textContent = text;
+    }
+
+    async function checkCurrentUser() {
+      try {
+        const res = await fetch(`${state.apiBase}/auth/me`, { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated && data.user) {
+            state.currentUser = data.user;
+            renderUserSession();
+          }
+        }
+      } catch (e) {
+        console.warn('Session check fallback', e);
+      }
+    }
+
+    function renderUserSession() {
+      document.getElementById('current-user-name').textContent = state.currentUser.name;
+      const badge = document.getElementById('current-user-role-badge');
+      badge.textContent = state.currentUser.role;
+      if (state.currentUser.role === 'ADMIN') {
+        badge.className = 'badge bg-danger text-white';
+        document.getElementById('admin-assign-row').classList.remove('d-none');
+      } else if (state.currentUser.role === 'MAINTENANCE_STAFF') {
+        badge.className = 'badge bg-warning text-dark';
+        document.getElementById('admin-assign-row').classList.add('d-none');
+      } else {
+        badge.className = 'badge bg-primary text-white';
+        document.getElementById('admin-assign-row').classList.add('d-none');
+      }
+    }
+
+    async function refreshAllData() {
+      await Promise.all([
+        loadDashboardStats(),
+        loadCategories(),
+        loadBuildings(),
+        loadStaffMembers(),
+        loadWorkOrders(),
+        loadAuditLogs()
+      ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // View Navigation
+    // -------------------------------------------------------------------------
+    function switchView(viewName) {
+      document.querySelectorAll('.app-view').forEach(el => el.classList.add('d-none'));
+      const target = document.getElementById(`view-${viewName}`);
+      if (target) target.classList.remove('d-none');
+
+      document.querySelectorAll('.nav-pill-btn').forEach(btn => {
+        if (btn.getAttribute('onclick')?.includes(viewName)) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // -------------------------------------------------------------------------
+    // Data Loaders
+    // -------------------------------------------------------------------------
+    async function loadDashboardStats() {
+      if (!state.isOnline) return;
+      try {
+        const res = await fetch(`${state.apiBase}/dashboard/stats`, { credentials: 'include' });
+        if (res.ok) {
+          const s = await res.json();
+          document.getElementById('stat-total-complaints').textContent = s.totalComplaints;
+          document.getElementById('stat-open-complaints').textContent = s.openComplaints + s.assignedComplaints;
+          document.getElementById('stat-inprogress-count').textContent = s.inProgressComplaints;
+          document.getElementById('stat-critical-complaints').textContent = s.criticalComplaints;
+          document.getElementById('stat-overdue-count').textContent = s.overdueComplaints;
+          document.getElementById('stat-resolution-rate').textContent = (s.resolutionRate || 0) + '%';
+          document.getElementById('stat-avg-rating').textContent = (s.avgRating || 0) + ' ★';
+          document.getElementById('stat-students-count').textContent = s.totalStudents || '--';
+
+          // Progress bars
+          const tot = Math.max(s.totalComplaints, 1);
+          document.getElementById('prog-open-val').textContent = s.openComplaints;
+          document.getElementById('prog-open-bar').style.width = `${(s.openComplaints / tot) * 100}%`;
+          document.getElementById('prog-assigned-val').textContent = s.assignedComplaints;
+          document.getElementById('prog-assigned-bar').style.width = `${(s.assignedComplaints / tot) * 100}%`;
+          document.getElementById('prog-inprogress-val').textContent = s.inProgressComplaints;
+          document.getElementById('prog-inprogress-bar').style.width = `${(s.inProgressComplaints / tot) * 100}%`;
+          document.getElementById('prog-resolved-val').textContent = (s.resolvedComplaints + s.closedComplaints);
+          document.getElementById('prog-resolved-bar').style.width = `${((s.resolvedComplaints + s.closedComplaints) / tot) * 100}%`;
+        }
+      } catch (err) {
+        console.error('Failed to load stats', err);
+      }
+    }
+
+    async function loadCategories() {
+      if (!state.isOnline) return;
+      try {
+        const res = await fetch(`${state.apiBase}/categories`);
+        if (res.ok) {
+          state.categories = await res.json();
+          const filterSel = document.getElementById('filter-category');
+          const reqSel = document.getElementById('req-category');
+          filterSel.innerHTML = '<option value="">All Categories</option>';
+          reqSel.innerHTML = '<option value="" disabled selected>Select category...</option>';
+          state.categories.forEach(c => {
+            filterSel.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
+            reqSel.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
+          });
+        }
+      } catch (err) {
+        console.error('Failed categories load', err);
+      }
+    }
+
+    async function loadBuildings() {
+      if (!state.isOnline) return;
+      try {
+        const res = await fetch(`${state.apiBase}/buildings`);
+        if (res.ok) {
+          state.buildings = await res.json();
+          const filterSel = document.getElementById('filter-building');
+          const reqSel = document.getElementById('req-building');
+          filterSel.innerHTML = '<option value="">All Buildings</option>';
+          reqSel.innerHTML = '<option value="" disabled selected>Select building...</option>';
+          const grid = document.getElementById('buildings-grid');
+          grid.innerHTML = '';
+
+          state.buildings.forEach(b => {
+            filterSel.innerHTML += `<option value="${b.id}">${escapeHtml(b.name)} (${b.code})</option>`;
+            reqSel.innerHTML += `<option value="${b.id}">${escapeHtml(b.name)}</option>`;
+
+            grid.innerHTML += `
+              <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="stat-card">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="badge bg-primary-subtle text-primary fw-bold">${escapeHtml(b.code || 'BLD')}</span>
+                    <span class="badge bg-success-subtle text-success small">Operational</span>
+                  </div>
+                  <h6 class="fw-bold mb-1 text-dark">${escapeHtml(b.name)}</h6>
+                  <p class="text-secondary small mb-2">${escapeHtml(b.location || 'Central Campus')}</p>
+                  <button class="btn btn-outline-secondary btn-sm w-100" style="font-size: 0.78rem;" onclick="filterByBuilding(${b.id})">
+                    View Maintenance Tickets
+                  </button>
+                </div>
+              </div>
+            `;
+          });
+        }
+      } catch (err) {
+        console.error('Failed buildings load', err);
+      }
+    }
+
+    async function loadStaffMembers() {
+      if (!state.isOnline) return;
+      try {
+        const res = await fetch(`${state.apiBase}/staff`);
+        if (res.ok) {
+          state.staffMembers = await res.json();
+          const assignSel = document.getElementById('action-staff-select');
+          assignSel.innerHTML = '<option value="" disabled selected>Dispatch Technician...</option>';
+          const grid = document.getElementById('staff-grid');
+          grid.innerHTML = '';
+
+          state.staffMembers.forEach(s => {
+            assignSel.innerHTML += `<option value="${s.id}">${escapeHtml(s.name)} — ${escapeHtml(s.department)}</option>`;
+            grid.innerHTML += `
+              <div class="col-sm-6 col-md-4">
+                <div class="stat-card">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-warning-subtle text-warning fs-5">
+                      <i class="fa-solid fa-user-gear"></i>
+                    </div>
+                    <div>
+                      <h6 class="fw-bold mb-0 text-dark">${escapeHtml(s.name)}</h6>
+                      <div class="text-secondary small">${escapeHtml(s.department || 'Facilities')}</div>
+                      <div class="text-secondary small mt-1"><i class="fa-solid fa-phone me-1"></i>${escapeHtml(s.phoneNumber || '+1 555-0100')}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        }
+      } catch (err) {
+        console.error('Failed staff load', err);
+      }
+    }
+
+    async function loadWorkOrders() {
+      if (!state.isOnline) return;
+      const search = document.getElementById('filter-search').value.trim();
+      const status = document.getElementById('filter-status').value;
+      const priority = document.getElementById('filter-priority').value;
+      const buildingId = document.getElementById('filter-building').value;
+      const categoryId = document.getElementById('filter-category').value;
+
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (status) params.append('status', status);
+      if (priority) params.append('priority', priority);
+      if (buildingId) params.append('buildingId', buildingId);
+      if (categoryId) params.append('categoryId', categoryId);
+      params.append('size', '100');
+
+      try {
+        const res = await fetch(`${state.apiBase}/complaints?${params.toString()}`);
+        if (res.ok) {
+          const data = await res.json();
+          state.complaints = data.complaints || [];
+          document.getElementById('filtered-count-badge').textContent = state.complaints.length;
+          renderWorkOrdersTable(state.complaints);
+          renderRecentOrders(state.complaints.slice(0, 5));
+        }
+      } catch (err) {
+        console.error('Failed work orders load', err);
+      }
+    }
+
+    function renderWorkOrdersTable(list) {
+      const tbody = document.getElementById('workorders-tbody');
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5 text-secondary">No work orders match the current criteria.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(c => `
+        <tr>
+          <td><span class="fw-bold text-primary font-monospace">${escapeHtml(c.complaintNumber)}</span></td>
+          <td>
+            <div class="fw-semibold text-dark">${escapeHtml(c.title)}</div>
+            <div class="text-secondary small text-truncate" style="max-width: 260px;">${escapeHtml(c.description || '')}</div>
+          </td>
+          <td><span class="badge bg-light text-dark border">${escapeHtml(c.category?.name || 'General')}</span></td>
+          <td>
+            <div class="small fw-semibold">${escapeHtml(c.building?.name || 'Campus')}</div>
+            <div class="text-secondary small">${escapeHtml(c.roomNumber || '')} (${escapeHtml(c.floor || '')})</div>
+          </td>
+          <td><span class="badge-priority ${c.priority?.toLowerCase()}">${c.priority}</span></td>
+          <td><span class="badge-status ${c.status?.toLowerCase()}">${c.status?.replace('_', ' ')}</span></td>
+          <td>${c.assignedStaff ? `<span class="small fw-semibold"><i class="fa-solid fa-user-check text-success me-1"></i>${escapeHtml(c.assignedStaff.name)}</span>` : `<span class="text-secondary small fst-italic">Unassigned</span>`}</td>
+          <td class="text-secondary small">${c.createdAt ? c.createdAt.split(' ')[0] : '--'}</td>
+          <td class="text-end">
+            <button class="btn btn-outline-primary btn-sm py-1 px-2" onclick="openOrderDetail(${c.id})">
+              Details
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderRecentOrders(list) {
+      const tbody = document.getElementById('recent-orders-tbody');
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-secondary">No recent tickets logged.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = list.map(c => `
+        <tr>
+          <td><span class="fw-bold text-primary font-monospace small">${escapeHtml(c.complaintNumber)}</span></td>
+          <td>
+            <div class="fw-semibold text-dark small">${escapeHtml(c.title)}</div>
+          </td>
+          <td class="small">${escapeHtml(c.building?.code || 'BLD')} - ${escapeHtml(c.roomNumber || '')}</td>
+          <td><span class="badge-priority ${c.priority?.toLowerCase()}">${c.priority}</span></td>
+          <td><span class="badge-status ${c.status?.toLowerCase()}">${c.status?.replace('_', ' ')}</span></td>
+          <td class="small">${c.assignedStaff ? escapeHtml(c.assignedStaff.name) : '<span class="text-secondary fst-italic">Unassigned</span>'}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadAuditLogs() {
+      if (!state.isOnline) return;
+      try {
+        const res = await fetch(`${state.apiBase}/audit?limit=25`);
+        if (res.ok) {
+          const logs = await res.json();
+          const tbody = document.getElementById('audit-tbody');
+          if (!logs || logs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-secondary">No audit logs recorded.</td></tr>`;
+            return;
+          }
+          tbody.innerHTML = logs.map(a => `
+            <tr>
+              <td class="text-secondary small font-monospace">${a.timestamp || '--'}</td>
+              <td><span class="badge bg-light text-dark border font-monospace small">${escapeHtml(a.action || '')}</span></td>
+              <td class="small fw-semibold">${escapeHtml(a.entityName || '')} #${a.entityId || ''}</td>
+              <td class="small">${escapeHtml(a.userName || 'System')} <span class="badge bg-secondary-subtle text-secondary" style="font-size:0.65rem;">${a.userRole || ''}</span></td>
+              <td class="small text-secondary">${escapeHtml(a.details || '')}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        console.error('Failed audit load', err);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Work Order Detail Modal
+    // -------------------------------------------------------------------------
+    async function openOrderDetail(id) {
+      state.selectedComplaintId = id;
+      try {
+        const res = await fetch(`${state.apiBase}/complaints/${id}`, { credentials: 'include' });
+        if (res.ok) {
+          const c = await res.json();
+          document.getElementById('detail-ticket-num').textContent = c.complaintNumber;
+          document.getElementById('detail-title').textContent = c.title;
+          document.getElementById('detail-description').textContent = c.description;
+          document.getElementById('detail-category').textContent = c.category?.name || '--';
+          document.getElementById('detail-building-room').textContent = `${c.building?.name || ''} — Room ${c.roomNumber || ''} (${c.floor || ''})`;
+          document.getElementById('detail-student').textContent = `${c.student?.name || '--'} (${c.student?.department || ''})`;
+          document.getElementById('detail-assigned-staff').textContent = c.assignedStaff ? `${c.assignedStaff.name} (${c.assignedStaff.department})` : 'Unassigned';
+
+          // Badges
+          const sBadge = document.getElementById('detail-status-badge');
+          sBadge.textContent = c.status?.replace('_', ' ');
+          sBadge.className = `badge-status ${c.status?.toLowerCase()}`;
+
+          const pBadge = document.getElementById('detail-priority-badge');
+          pBadge.textContent = c.priority;
+          pBadge.className = `badge-priority ${c.priority?.toLowerCase()}`;
+
+          // Feedback panel if resolved/closed
+          const ratingPanel = document.getElementById('student-rating-panel');
+          if (c.status === 'RESOLVED' || c.status === 'CLOSED') {
+            ratingPanel.classList.remove('d-none');
+          } else {
+            ratingPanel.classList.add('d-none');
+          }
+
+          // Render Timeline
+          const timeline = document.getElementById('detail-timeline');
+          if (c.history && c.history.length > 0) {
+            timeline.innerHTML = c.history.map(h => `
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="small fw-semibold text-dark">${escapeHtml(h.action)} ${h.newStatus ? `&rarr; <span class="badge-status ${h.newStatus.toLowerCase()}">${h.newStatus}</span>` : ''}</div>
+                <div class="text-secondary small">${escapeHtml(h.details || '')}</div>
+                <div class="text-secondary font-monospace" style="font-size: 0.7rem;">${h.performer} • ${h.timestamp}</div>
+              </div>
+            `).join('');
+          } else {
+            timeline.innerHTML = `<div class="text-secondary small">Ticket submitted at ${c.createdAt || 'N/A'}.</div>`;
+          }
+
+          // Render Comments
+          const commentList = document.getElementById('detail-comments-list');
+          if (c.comments && c.comments.length > 0) {
+            commentList.innerHTML = c.comments.map(cm => `
+              <div class="p-2 mb-2 bg-light rounded border small">
+                <div class="d-flex justify-content-between text-secondary mb-1" style="font-size: 0.72rem;">
+                  <span class="fw-semibold text-dark">${escapeHtml(cm.authorName)} (${cm.authorRole})</span>
+                  <span>${cm.timestamp || ''}</span>
+                </div>
+                <div class="text-dark">${escapeHtml(cm.content)}</div>
+              </div>
+            `).join('');
+          } else {
+            commentList.innerHTML = `<div class="text-secondary small fst-italic">No official comments logged yet.</div>`;
+          }
+
+          const modal = new bootstrap.Modal(document.getElementById('modal-order-detail'));
+          modal.show();
+        }
+      } catch (err) {
+        showToast('Error', 'Unable to fetch work order details: ' + err.message, 'danger');
+      }
+    }
+
+    async function executeStatusUpdate() {
+      if (!state.selectedComplaintId) return;
+      const status = document.getElementById('action-status-select').value;
+      const details = document.getElementById('action-status-notes').value.trim() || 'Status changed via portal';
+
+      try {
+        const res = await fetch(`${state.apiBase}/complaints/${state.selectedComplaintId}/status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ status, details })
+        });
+        if (res.ok) {
+          showToast('Updated', `Status transitioned to ${status}`, 'success');
+          openOrderDetail(state.selectedComplaintId);
+          loadWorkOrders();
+          loadDashboardStats();
+        } else {
+          const err = await res.json();
+          showToast('Error', err.message || 'Status transition failed', 'danger');
+        }
+      } catch (err) {
+        showToast('Error', err.message, 'danger');
+      }
+    }
+
+    async function executeStaffAssign() {
+      if (!state.selectedComplaintId) return;
+      const staffId = document.getElementById('action-staff-select').value;
+      const priority = document.getElementById('action-priority-select').value;
+      if (!staffId) {
+        showToast('Warning', 'Please select a technician first', 'warning');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${state.apiBase}/complaints/${state.selectedComplaintId}/assign`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ staffId, priority, note: 'Dispatched for physical inspection' })
+        });
+        if (res.ok) {
+          showToast('Assigned', 'Technician successfully dispatched.', 'success');
+          openOrderDetail(state.selectedComplaintId);
+          loadWorkOrders();
+          loadDashboardStats();
+        } else {
+          const err = await res.json();
+          showToast('Error', err.message || 'Staff assignment failed', 'danger');
+        }
+      } catch (err) {
+        showToast('Error', err.message, 'danger');
+      }
+    }
+
+    async function executeAddComment() {
+      if (!state.selectedComplaintId) return;
+      const input = document.getElementById('new-comment-text');
+      const content = input.value.trim();
+      if (!content) return;
+
+      try {
+        const res = await fetch(`${state.apiBase}/complaints/${state.selectedComplaintId}/comments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ content, isInternal: false })
+        });
+        if (res.ok) {
+          input.value = '';
+          openOrderDetail(state.selectedComplaintId);
+        }
+      } catch (err) {
+        showToast('Error', err.message, 'danger');
+      }
+    }
+
+    async function executeSubmitFeedback() {
+      if (!state.selectedComplaintId) return;
+      const rating = document.getElementById('feedback-rating-select').value;
+      const comments = document.getElementById('feedback-comment-input').value.trim();
+
+      try {
+        const res = await fetch(`${state.apiBase}/complaints/${state.selectedComplaintId}/feedback`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ rating, comments })
+        });
+        if (res.ok) {
+          showToast('Feedback Received', 'Thank you for your rating!', 'success');
+          loadDashboardStats();
+        }
+      } catch (err) {
+        showToast('Error', err.message, 'danger');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Submit New Request Form
+    // -------------------------------------------------------------------------
+    async function handleRequestSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit-order');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Submitting...';
+
+      const payload = {
+        title: document.getElementById('req-title').value.trim(),
+        categoryId: document.getElementById('req-category').value,
+        buildingId: document.getElementById('req-building').value,
+        floor: document.getElementById('req-floor').value.trim(),
+        roomNumber: document.getElementById('req-room').value.trim(),
+        locationDescription: document.getElementById('req-location-desc').value.trim(),
+        priority: document.getElementById('req-priority').value,
+        description: document.getElementById('req-desc').value.trim()
+      };
+
+      try {
+        const res = await fetch(`${state.apiBase}/complaints`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          showToast('Success', `Work Order ${data.complaint?.complaintNumber || ''} created successfully!`, 'success');
+          document.getElementById('new-request-form').reset();
+          await refreshAllData();
+          switchView('workorders');
+        } else {
+          const err = await res.json();
+          showToast('Submission Failed', err.message || 'Please check form inputs', 'danger');
+        }
+      } catch (err) {
+        showToast('Error', 'Unable to reach backend: ' + err.message, 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit Work Order';
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Role Switching & Authentication
+    // -------------------------------------------------------------------------
+    async function switchUserRole(roleName) {
+      try {
+        const res = await fetch(`${state.apiBase}/auth/demo-switch?role=${roleName}`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        if (res.ok) {
+          const data = await res.json();
+          state.currentUser = data.user;
+          renderUserSession();
+          showToast('Switched Role', `Authenticated as ${state.currentUser.name} (${state.currentUser.role})`, 'info');
+          refreshAllData();
+        }
+      } catch (err) {
+        showToast('Error', err.message, 'danger');
+      }
+    }
+
+    function openLoginModal() {
+      new bootstrap.Modal(document.getElementById('modal-login')).show();
+    }
+
+    async function handleManualLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      try {
+        const res = await fetch(`${state.apiBase}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email, password })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          state.currentUser = data.user;
+          renderUserSession();
+          bootstrap.Modal.getInstance(document.getElementById('modal-login')).hide();
+          showToast('Welcome', `Signed in as ${data.user.name}`, 'success');
+          refreshAllData();
+        } else {
+          const err = await res.json();
+          showToast('Sign In Failed', err.message || 'Invalid credentials', 'danger');
+        }
+      } catch (err) {
+        showToast('Error', err.message, 'danger');
+      }
+    }
+
+    function fillAndLogin(email, pwd) {
+      document.getElementById('login-email').value = email;
+      document.getElementById('login-password').value = pwd;
+    }
+
+    async function logoutSession() {
+      try {
+        await fetch(`${state.apiBase}/auth/logout`, { method: 'POST', credentials: 'include' });
+        showToast('Logged Out', 'Session terminated', 'secondary');
+        setTimeout(() => window.location.reload(), 800);
+      } catch (e) {
+        window.location.reload();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Server Config Modal
+    // -------------------------------------------------------------------------
+    function openServerConfigModal() {
+      new bootstrap.Modal(document.getElementById('modal-server-config')).show();
+    }
+
+    function saveServerConfig() {
+      const input = document.getElementById('config-api-url').value.trim();
+      if (!input) return;
+      state.apiBase = input.replace(/\/+$/, '');
+      localStorage.setItem('scm_api_url', state.apiBase);
+      bootstrap.Modal.getInstance(document.getElementById('modal-server-config')).hide();
+      initApiConnection();
+    }
+
+    function resetDefaultServerConfig() {
+      localStorage.removeItem('scm_api_url');
+      state.apiBase = 'http://localhost:8080/api';
+      document.getElementById('config-api-url').value = state.apiBase;
+      saveServerConfig();
+    }
+
+    // -------------------------------------------------------------------------
+    // Utilities & Toast
+    // -------------------------------------------------------------------------
+    function filterByBuilding(bId) {
+      document.getElementById('filter-building').value = bId;
+      switchView('workorders');
+      applyFilters();
+    }
+
+    function debounceApplyFilters() {
+      clearTimeout(state.filterDebounceTimer);
+      state.filterDebounceTimer = setTimeout(loadWorkOrders, 250);
+    }
+
+    function applyFilters() {
+      loadWorkOrders();
+    }
+
+    function resetFilters() {
+      document.getElementById('filter-search').value = '';
+      document.getElementById('filter-status').value = '';
+      document.getElementById('filter-priority').value = '';
+      document.getElementById('filter-building').value = '';
+      document.getElementById('filter-category').value = '';
+      loadWorkOrders();
+    }
+
+    function exportComplaintsCsv() {
+      window.location.href = `${state.apiBase.replace('/api', '')}/admin/reports/export/complaints.csv`;
+    }
+
+    function showToast(title, message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toastEl = document.createElement('div');
+      toastEl.className = `toast align-items-center text-bg-${type} border-0 show mb-2 shadow`;
+      toastEl.setAttribute('role', 'alert');
+      toastEl.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body small">
+            <strong>${escapeHtml(title)}:</strong> ${escapeHtml(message)}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      `;
+      container.appendChild(toastEl);
+      setTimeout(() => toastEl.remove(), 4000);
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function loadMockFallbackData() {
+      // Clean fallback if user views static file without running backend
+      state.categories = [
+        { id: 1, name: "Electrical" },
+        { id: 2, name: "Plumbing" },
+        { id: 3, name: "IT / Network" },
+        { id: 4, name: "Air Conditioning" }
+      ];
+      state.buildings = [
+        { id: 1, name: "CSE Block", code: "CSE", location: "North Campus" },
+        { id: 2, name: "Central Library", code: "LIB", location: "Central Campus" },
+        { id: 3, name: "Hostel Block A", code: "HSA", location: "South Residence" }
+      ];
+      loadCategories();
+      loadBuildings();
+    }
+  </script>
 </body>
 </html>

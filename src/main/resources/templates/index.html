@@ -438,9 +438,15 @@
 
   <!-- Offline Notice Banner -->
   <div id="backend-offline-banner" class="alert alert-warning border-0 rounded-0 mb-0 py-2 text-center small d-none" role="alert">
-    <i class="fa-solid fa-triangle-exclamation me-1"></i>
-    <strong>Backend Spring Boot Server Offline:</strong> Unable to connect to <code id="offline-target-url">http://localhost:8080/api</code>.
-    Start Spring Boot or <a href="javascript:void(0)" onclick="openServerConfigModal()" class="alert-link text-decoration-underline">configure target API host</a>.
+    <div class="container d-flex align-items-center justify-content-center gap-2 flex-wrap">
+      <span id="offline-banner-text">
+        <i class="fa-solid fa-triangle-exclamation me-1"></i>
+        <strong>Backend Spring Boot Server Offline:</strong> Unable to connect to <code id="offline-target-url">http://localhost:8080/api</code>.
+        Start Spring Boot or <a href="javascript:void(0)" onclick="openServerConfigModal()" class="alert-link text-decoration-underline">configure API host</a>.
+      </span>
+      <a href="http://localhost:8080/" id="offline-local-link" class="badge bg-dark text-white text-decoration-none py-1 px-2 d-none">Open Local App (Port 8080) &rarr;</a>
+      <button type="button" class="btn-close btn-sm ms-2" onclick="document.getElementById('backend-offline-banner').classList.add('d-none')" aria-label="Close"></button>
+    </div>
   </div>
 
   <!-- Toast Notification Container -->
@@ -1191,6 +1197,98 @@
       filterDebounceTimer: null
     };
 
+    // Standalone fallback seed data for GitHub Pages or offline testing
+    const MOCK_DATA = {
+      categories: [
+        { id: 1, name: 'Electrical', description: 'Lighting, switches, power sockets, wiring' },
+        { id: 2, name: 'Plumbing', description: 'Pipes, taps, drainage, water supply' },
+        { id: 3, name: 'Computer / IT', description: 'Lab PCs, OS issues, keyboards, mice' },
+        { id: 4, name: 'Internet / Network', description: 'Wi-Fi access points, LAN connections' },
+        { id: 8, name: 'Air Conditioning', description: 'AC cooling, filters, remote controls' },
+        { id: 11, name: 'Projector / Smart Board', description: 'Display projectors, HDMI connections' },
+        { id: 13, name: 'Washroom', description: 'Restroom maintenance, hygiene, fittings' },
+        { id: 14, name: 'Building Infrastructure', description: 'Walls, doors, windows, ceiling tiles' }
+      ],
+      buildings: [
+        { id: 1, name: 'Main Academic Block', code: 'MAB', totalFloors: 4, location: 'North Quad' },
+        { id: 2, name: 'Science & Engineering Complex', code: 'SEC', totalFloors: 5, location: 'East Campus' },
+        { id: 3, name: 'Central Library', code: 'LIB', totalFloors: 3, location: 'Central Circle' },
+        { id: 4, name: 'Student Residence Hall A', code: 'RHA', totalFloors: 6, location: 'South Residential' }
+      ],
+      staff: [
+        { id: 2, name: 'Ravi Kumar', email: 'staff@smartcampus.com', department: 'Electrical & Appliances', phoneNumber: '+1 555-0144' },
+        { id: 3, name: 'Sarah Jenkins', email: 'staff2@smartcampus.com', department: 'HVAC & Climate Control', phoneNumber: '+1 555-0155' },
+        { id: 4, name: 'David Chen', email: 'staff3@smartcampus.com', department: 'Network & IT Infrastructure', phoneNumber: '+1 555-0166' }
+      ],
+      complaints: [
+        {
+          id: 1,
+          complaintNumber: 'CMP-2026-0001',
+          title: 'Projector display flickering in Lecture Hall 204',
+          description: 'The overhead projector power turns off intermittently during lectures. HDMI input is also unstable.',
+          category: { id: 11, name: 'Projector / Smart Board' },
+          building: { id: 2, name: 'Science & Engineering Complex', code: 'SEC' },
+          floor: 'Floor 2',
+          roomNumber: 'Room 204',
+          locationDescription: 'Mounted on ceiling near white board',
+          priority: 'HIGH',
+          status: 'IN_PROGRESS',
+          student: { id: 5, name: 'Alex Morgan', email: 'student@smartcampus.com', registerNumber: 'STU2026001', department: 'Computer Science' },
+          assignedStaff: { id: 2, name: 'Ravi Kumar', email: 'staff@smartcampus.com', department: 'Electrical & Appliances' },
+          createdAt: '2026-10-25T10:15:00',
+          rating: null,
+          comments: [
+            { id: 101, content: 'Ceiling bracket inspected; replacing HDMI splitter.', authorName: 'Ravi Kumar', authorRole: 'MAINTENANCE_STAFF', createdAt: '2026-10-25T11:20:00' }
+          ]
+        },
+        {
+          id: 2,
+          complaintNumber: 'CMP-2026-0002',
+          title: 'Main corridor LED light fixture dark',
+          description: 'Main corridor light fixture is completely dead, causing poor visibility in the evening.',
+          category: { id: 1, name: 'Electrical' },
+          building: { id: 1, name: 'Main Academic Block', code: 'MAB' },
+          floor: 'Floor 1',
+          roomNumber: 'Corridor 102',
+          locationDescription: 'Near East entrance',
+          priority: 'MEDIUM',
+          status: 'OPEN',
+          student: { id: 6, name: 'Priya Sharma', email: 'priya@smartcampus.com', registerNumber: 'STU2026002', department: 'Electronics' },
+          assignedStaff: null,
+          createdAt: '2026-10-25T11:30:00',
+          rating: null,
+          comments: []
+        },
+        {
+          id: 3,
+          complaintNumber: 'CMP-2026-0003',
+          title: 'Wi-Fi Access Point offline in Programming Lab 3',
+          description: 'Access Point AP-SEC-3B is unpowered. Network cable was tested and verified functional.',
+          category: { id: 4, name: 'Internet / Network' },
+          building: { id: 2, name: 'Science & Engineering Complex', code: 'SEC' },
+          floor: 'Floor 3',
+          roomNumber: 'Lab 3',
+          locationDescription: 'Rack 4 ceiling junction',
+          priority: 'HIGH',
+          status: 'RESOLVED',
+          student: { id: 5, name: 'Alex Morgan', email: 'student@smartcampus.com', registerNumber: 'STU2026001', department: 'Computer Science' },
+          assignedStaff: { id: 4, name: 'David Chen', email: 'staff3@smartcampus.com', department: 'Network & IT Infrastructure' },
+          createdAt: '2026-10-24T14:00:00',
+          resolvedAt: '2026-10-25T09:30:00',
+          rating: 5,
+          comments: [
+            { id: 102, content: 'PoE injector port re-enabled on core switch. Signal strength verified.', authorName: 'David Chen', authorRole: 'MAINTENANCE_STAFF', createdAt: '2026-10-25T09:25:00' }
+          ]
+        }
+      ],
+      auditLogs: [
+        { id: 1, action: 'CREATE', entityName: 'Complaint', entityId: 1, details: 'Created ticket CMP-2026-0001 (Projector display flickering)', timestamp: '2026-10-25T10:15:00', userName: 'Alex Morgan', userRole: 'STUDENT' },
+        { id: 2, action: 'ASSIGN', entityName: 'Complaint', entityId: 1, details: 'Assigned to technician Ravi Kumar (Priority: HIGH)', timestamp: '2026-10-25T10:30:00', userName: 'Campus Chief Administrator', userRole: 'ADMIN' },
+        { id: 3, action: 'STATUS_UPDATE', entityName: 'Complaint', entityId: 1, details: 'Transitioned state from ASSIGNED to IN_PROGRESS', timestamp: '2026-10-25T11:00:00', userName: 'Ravi Kumar', userRole: 'MAINTENANCE_STAFF' },
+        { id: 4, action: 'RESOLVE', entityName: 'Complaint', entityId: 3, details: 'Work completed and ticket resolved', timestamp: '2026-10-25T09:30:00', userName: 'David Chen', userRole: 'MAINTENANCE_STAFF' }
+      ]
+    };
+
     // -------------------------------------------------------------------------
     // Theme Management
     // -------------------------------------------------------------------------
@@ -1247,15 +1345,30 @@
           updateServerIndicator('online', 'Live Connected (Spring Boot)');
           document.getElementById('backend-offline-banner').classList.add('d-none');
           await checkCurrentUser();
+          return;
         } else {
           throw new Error('API Health check returned ' + res.status);
         }
       } catch (err) {
         state.isOnline = false;
-        updateServerIndicator('offline', 'Backend Offline (Port 8080)');
-        document.getElementById('offline-target-url').textContent = state.apiBase;
-        document.getElementById('backend-offline-banner').classList.remove('d-none');
-        // If offline and no session, prompt login
+        const banner = document.getElementById('backend-offline-banner');
+        const bannerText = document.getElementById('offline-banner-text');
+        const localLink = document.getElementById('offline-local-link');
+
+        if (window.location.hostname.includes('github.io')) {
+          updateServerIndicator('offline', 'Demo Mode (GitHub Pages)');
+          if (banner) banner.className = 'alert alert-info border-0 rounded-0 mb-0 py-2 text-center small';
+          if (bannerText) {
+            bannerText.innerHTML = '<i class="fa-solid fa-cloud me-1"></i> <strong>GitHub Pages Standalone Preview:</strong> Interactive demo mode active. To connect to your live Spring Boot + MySQL/H2 backend, start the JAR locally and open <a href="http://localhost:8080/" class="alert-link text-decoration-underline fw-bold">http://localhost:8080/</a>.';
+          }
+          if (localLink) localLink.classList.remove('d-none');
+        } else {
+          updateServerIndicator('offline', 'Backend Offline (Port 8080)');
+          if (bannerText) {
+            bannerText.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> <strong>Backend Server Offline:</strong> Unable to reach <code>${state.apiBase}</code>. Start Spring Boot or check port 8080.`;
+          }
+        }
+        if (banner) banner.classList.remove('d-none');
         showAuthScreen();
       }
     }
@@ -1334,6 +1447,20 @@
       if (passEl) passEl.value = password;
     }
 
+    function getMockUserByCredentials(email, password) {
+      const lower = (email || '').toLowerCase().trim();
+      if (lower === 'student@smartcampus.com') {
+        return { id: 5, name: 'Alex Morgan', email: 'student@smartcampus.com', role: 'STUDENT', department: 'Computer Science & Engineering', registerNumber: 'STU2026001', phoneNumber: '+1 555-0111' };
+      }
+      if (lower === 'admin@smartcampus.com') {
+        return { id: 1, name: 'Campus Chief Administrator', email: 'admin@smartcampus.com', role: 'ADMIN', department: 'Campus Operations & Infrastructure', registerNumber: '', phoneNumber: '+1 555-0199' };
+      }
+      if (lower === 'staff@smartcampus.com') {
+        return { id: 2, name: 'Ravi Kumar', email: 'staff@smartcampus.com', role: 'MAINTENANCE_STAFF', department: 'Electrical & Appliances', registerNumber: '', phoneNumber: '+1 555-0144' };
+      }
+      return null;
+    }
+
     async function handleAuthLogin(e) {
       e.preventDefault();
       const email = document.getElementById('auth-email').value.trim();
@@ -1343,6 +1470,9 @@
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Authenticating...';
 
       try {
+        if (!state.isOnline) {
+          throw new Error('Offline');
+        }
         const res = await fetch(`${state.apiBase}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1358,10 +1488,16 @@
           showToast('Sign In Failed', err.message || 'Invalid credentials', 'danger');
         }
       } catch (err) {
-        showToast('Error', err.message, 'danger');
+        const mockUser = getMockUserByCredentials(email, password);
+        if (mockUser) {
+          showToast('Signed In (Demo)', `Welcome, ${mockUser.name}`, 'info');
+          loginUserSuccess(mockUser);
+        } else {
+          showToast('Sign In Failed', 'Invalid credentials or unable to reach backend: ' + err.message, 'danger');
+        }
       } finally {
         btn.disabled = false;
-        btn.innerHTML = 'Sign In With Password';
+        btn.innerHTML = 'Sign In';
       }
     }
 
@@ -1546,167 +1682,213 @@
     }
 
     async function loadDashboardStats() {
-      if (!state.isOnline) return;
-      try {
-        const res = await fetch(`${state.apiBase}/dashboard/stats`, { credentials: 'include' });
-        if (res.ok) {
-          const s = await res.json();
-          document.getElementById('stat-total-complaints').textContent = s.totalComplaints;
-          document.getElementById('stat-open-complaints').textContent = s.openComplaints + s.assignedComplaints;
-          document.getElementById('stat-inprogress-count').textContent = s.inProgressComplaints;
-          document.getElementById('stat-critical-complaints').textContent = s.criticalComplaints;
-          document.getElementById('stat-overdue-count').textContent = s.overdueComplaints;
-          document.getElementById('stat-resolution-rate').textContent = (s.resolutionRate || 0) + '%';
-          document.getElementById('stat-avg-rating').textContent = (s.avgRating || 0) + ' ★';
-          document.getElementById('stat-students-count').textContent = s.totalStudents || '--';
-
-          // Quick status pill counts
-          document.getElementById('count-all').textContent = s.totalComplaints;
-          document.getElementById('count-open').textContent = s.openComplaints;
-          document.getElementById('count-assigned').textContent = s.assignedComplaints;
-          document.getElementById('count-inprogress').textContent = s.inProgressComplaints;
-          document.getElementById('count-resolved').textContent = s.resolvedComplaints;
-          document.getElementById('count-closed').textContent = s.closedComplaints;
-
-          // Progress bars
-          const tot = Math.max(s.totalComplaints, 1);
-          document.getElementById('prog-open-val').textContent = s.openComplaints;
-          document.getElementById('prog-open-bar').style.width = `${(s.openComplaints / tot) * 100}%`;
-          document.getElementById('prog-assigned-val').textContent = s.assignedComplaints;
-          document.getElementById('prog-assigned-bar').style.width = `${(s.assignedComplaints / tot) * 100}%`;
-          document.getElementById('prog-inprogress-val').textContent = s.inProgressComplaints;
-          document.getElementById('prog-inprogress-bar').style.width = `${(s.inProgressComplaints / tot) * 100}%`;
-          document.getElementById('prog-resolved-val').textContent = (s.resolvedComplaints + s.closedComplaints);
-          document.getElementById('prog-resolved-bar').style.width = `${((s.resolvedComplaints + s.closedComplaints) / tot) * 100}%`;
+      let s = null;
+      if (state.isOnline) {
+        try {
+          const res = await fetch(`${state.apiBase}/dashboard/stats`, { credentials: 'include' });
+          if (res.ok) s = await res.json();
+        } catch (err) {
+          console.error('Failed to load stats', err);
         }
-      } catch (err) {
-        console.error('Failed to load stats', err);
       }
+      if (!s) {
+        const total = MOCK_DATA.complaints.length;
+        const open = MOCK_DATA.complaints.filter(c => c.status === 'OPEN').length;
+        const assigned = MOCK_DATA.complaints.filter(c => c.status === 'ASSIGNED').length;
+        const inProg = MOCK_DATA.complaints.filter(c => c.status === 'IN_PROGRESS').length;
+        const resolved = MOCK_DATA.complaints.filter(c => c.status === 'RESOLVED').length;
+        const closed = MOCK_DATA.complaints.filter(c => c.status === 'CLOSED').length;
+        const critical = MOCK_DATA.complaints.filter(c => c.priority === 'CRITICAL' || c.priority === 'HIGH').length;
+        s = {
+          totalComplaints: total,
+          openComplaints: open,
+          assignedComplaints: assigned,
+          inProgressComplaints: inProg,
+          resolvedComplaints: resolved,
+          closedComplaints: closed,
+          criticalComplaints: critical,
+          overdueComplaints: 0,
+          resolutionRate: Math.round(((resolved + closed) / Math.max(total, 1)) * 100),
+          avgRating: 4.8,
+          totalStudents: 1420
+        };
+      }
+
+      document.getElementById('stat-total-complaints').textContent = s.totalComplaints;
+      document.getElementById('stat-open-complaints').textContent = s.openComplaints + s.assignedComplaints;
+      document.getElementById('stat-inprogress-count').textContent = s.inProgressComplaints;
+      document.getElementById('stat-critical-complaints').textContent = s.criticalComplaints;
+      document.getElementById('stat-overdue-count').textContent = s.overdueComplaints;
+      document.getElementById('stat-resolution-rate').textContent = (s.resolutionRate || 0) + '%';
+      document.getElementById('stat-avg-rating').textContent = (s.avgRating || 0) + ' ★';
+      document.getElementById('stat-students-count').textContent = s.totalStudents || '--';
+
+      // Quick status pill counts
+      document.getElementById('count-all').textContent = s.totalComplaints;
+      document.getElementById('count-open').textContent = s.openComplaints;
+      document.getElementById('count-assigned').textContent = s.assignedComplaints;
+      document.getElementById('count-inprogress').textContent = s.inProgressComplaints;
+      document.getElementById('count-resolved').textContent = s.resolvedComplaints;
+      document.getElementById('count-closed').textContent = s.closedComplaints;
+
+      // Progress bars
+      const tot = Math.max(s.totalComplaints, 1);
+      document.getElementById('prog-open-val').textContent = s.openComplaints;
+      document.getElementById('prog-open-bar').style.width = `${(s.openComplaints / tot) * 100}%`;
+      document.getElementById('prog-assigned-val').textContent = s.assignedComplaints;
+      document.getElementById('prog-assigned-bar').style.width = `${(s.assignedComplaints / tot) * 100}%`;
+      document.getElementById('prog-inprogress-val').textContent = s.inProgressComplaints;
+      document.getElementById('prog-inprogress-bar').style.width = `${(s.inProgressComplaints / tot) * 100}%`;
+      document.getElementById('prog-resolved-val').textContent = (s.resolvedComplaints + s.closedComplaints);
+      document.getElementById('prog-resolved-bar').style.width = `${((s.resolvedComplaints + s.closedComplaints) / tot) * 100}%`;
     }
 
     async function loadCategories() {
-      if (!state.isOnline) return;
-      try {
-        const res = await fetch(`${state.apiBase}/categories`);
-        if (res.ok) {
-          state.categories = await res.json();
-          const filterSel = document.getElementById('filter-category');
-          const reqSel = document.getElementById('req-category');
-          filterSel.innerHTML = '<option value="">All Categories</option>';
-          reqSel.innerHTML = '<option value="" disabled selected>Select category...</option>';
-          state.categories.forEach(c => {
-            filterSel.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
-            reqSel.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
-          });
-        }
-      } catch (err) {
-        console.error('Failed categories load', err);
+      let cats = null;
+      if (state.isOnline) {
+        try {
+          const res = await fetch(`${state.apiBase}/categories`);
+          if (res.ok) cats = await res.json();
+        } catch (err) {}
       }
+      if (!cats) cats = MOCK_DATA.categories;
+      state.categories = cats;
+      const filterSel = document.getElementById('filter-category');
+      const reqSel = document.getElementById('req-category');
+      filterSel.innerHTML = '<option value="">All Categories</option>';
+      reqSel.innerHTML = '<option value="" disabled selected>Select category...</option>';
+      state.categories.forEach(c => {
+        filterSel.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
+        reqSel.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
+      });
     }
 
     async function loadBuildings() {
-      if (!state.isOnline) return;
-      try {
-        const res = await fetch(`${state.apiBase}/buildings`);
-        if (res.ok) {
-          state.buildings = await res.json();
-          const filterSel = document.getElementById('filter-building');
-          const reqSel = document.getElementById('req-building');
-          filterSel.innerHTML = '<option value="">All Buildings</option>';
-          reqSel.innerHTML = '<option value="" disabled selected>Select building...</option>';
-          const grid = document.getElementById('buildings-grid');
-          grid.innerHTML = '';
-
-          state.buildings.forEach(b => {
-            filterSel.innerHTML += `<option value="${b.id}">${escapeHtml(b.name)} (${b.code})</option>`;
-            reqSel.innerHTML += `<option value="${b.id}">${escapeHtml(b.name)}</option>`;
-
-            grid.innerHTML += `
-              <div class="col-sm-6 col-lg-4 col-xl-3">
-                <div class="stat-card">
-                  <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="badge bg-primary-subtle text-primary fw-bold">${escapeHtml(b.code || 'BLD')}</span>
-                    <span class="badge bg-success-subtle text-success small">Operational</span>
-                  </div>
-                  <h6 class="fw-bold mb-1" style="color: var(--text-main);">${escapeHtml(b.name)}</h6>
-                  <p class="small mb-2" style="color: var(--text-muted);">${escapeHtml(b.location || 'Central Campus')}</p>
-                  <button class="btn btn-outline-secondary btn-sm w-100" style="font-size: 0.78rem;" onclick="filterByBuilding(${b.id})">
-                    View Maintenance Tickets
-                  </button>
-                </div>
-              </div>
-            `;
-          });
-        }
-      } catch (err) {
-        console.error('Failed buildings load', err);
+      let blds = null;
+      if (state.isOnline) {
+        try {
+          const res = await fetch(`${state.apiBase}/buildings`);
+          if (res.ok) blds = await res.json();
+        } catch (err) {}
       }
+      if (!blds) blds = MOCK_DATA.buildings;
+      state.buildings = blds;
+      const filterSel = document.getElementById('filter-building');
+      const reqSel = document.getElementById('req-building');
+      filterSel.innerHTML = '<option value="">All Buildings</option>';
+      reqSel.innerHTML = '<option value="" disabled selected>Select building...</option>';
+      const grid = document.getElementById('buildings-grid');
+      grid.innerHTML = '';
+
+      state.buildings.forEach(b => {
+        filterSel.innerHTML += `<option value="${b.id}">${escapeHtml(b.name)} (${b.code})</option>`;
+        reqSel.innerHTML += `<option value="${b.id}">${escapeHtml(b.name)}</option>`;
+
+        grid.innerHTML += `
+          <div class="col-sm-6 col-lg-4 col-xl-3">
+            <div class="stat-card">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="badge bg-primary-subtle text-primary fw-bold">${escapeHtml(b.code || 'BLD')}</span>
+                <span class="badge bg-success-subtle text-success small">Operational</span>
+              </div>
+              <h6 class="fw-bold mb-1" style="color: var(--text-main);">${escapeHtml(b.name)}</h6>
+              <p class="small mb-2" style="color: var(--text-muted);">${escapeHtml(b.location || 'Central Campus')}</p>
+              <button class="btn btn-outline-secondary btn-sm w-100" style="font-size: 0.78rem;" onclick="filterByBuilding(${b.id})">
+                View Maintenance Tickets
+              </button>
+            </div>
+          </div>
+        `;
+      });
     }
 
     async function loadStaffMembers() {
-      if (!state.isOnline) return;
-      try {
-        const res = await fetch(`${state.apiBase}/staff`);
-        if (res.ok) {
-          state.staffMembers = await res.json();
-          const assignSel = document.getElementById('action-staff-select');
-          assignSel.innerHTML = '<option value="" disabled selected>Dispatch Technician...</option>';
-          const grid = document.getElementById('staff-grid');
-          grid.innerHTML = '';
+      let st = null;
+      if (state.isOnline) {
+        try {
+          const res = await fetch(`${state.apiBase}/staff`);
+          if (res.ok) st = await res.json();
+        } catch (err) {}
+      }
+      if (!st) st = MOCK_DATA.staff;
+      state.staffMembers = st;
+      const assignSel = document.getElementById('action-staff-select');
+      assignSel.innerHTML = '<option value="" disabled selected>Dispatch Technician...</option>';
+      const grid = document.getElementById('staff-grid');
+      grid.innerHTML = '';
 
-          state.staffMembers.forEach(s => {
-            assignSel.innerHTML += `<option value="${s.id}">${escapeHtml(s.name)} — ${escapeHtml(s.department)}</option>`;
-            grid.innerHTML += `
-              <div class="col-sm-6 col-md-4">
-                <div class="stat-card">
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon bg-warning-subtle text-warning fs-5">
-                      <i class="fa-solid fa-user-gear"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold mb-0" style="color: var(--text-main);">${escapeHtml(s.name)}</h6>
-                      <div class="small" style="color: var(--text-muted);">${escapeHtml(s.department || 'Facilities')}</div>
-                      <div class="small mt-1" style="color: var(--text-muted);"><i class="fa-solid fa-phone me-1"></i>${escapeHtml(s.phoneNumber || '+1 555-0100')}</div>
-                    </div>
-                  </div>
+      state.staffMembers.forEach(s => {
+        assignSel.innerHTML += `<option value="${s.id}">${escapeHtml(s.name)} — ${escapeHtml(s.department)}</option>`;
+        grid.innerHTML += `
+          <div class="col-sm-6 col-md-4">
+            <div class="stat-card">
+              <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon bg-warning-subtle text-warning fs-5">
+                  <i class="fa-solid fa-user-gear"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-0" style="color: var(--text-main);">${escapeHtml(s.name)}</h6>
+                  <div class="small" style="color: var(--text-muted);">${escapeHtml(s.department || 'Facilities')}</div>
+                  <div class="small mt-1" style="color: var(--text-muted);"><i class="fa-solid fa-phone me-1"></i>${escapeHtml(s.phoneNumber || '+1 555-0100')}</div>
                 </div>
               </div>
-            `;
-          });
-        }
-      } catch (err) {
-        console.error('Failed staff load', err);
-      }
+            </div>
+          </div>
+        `;
+      });
     }
 
     async function loadWorkOrders() {
-      if (!state.isOnline) return;
-      const search = document.getElementById('filter-search').value.trim();
+      const search = document.getElementById('filter-search').value.trim().toLowerCase();
       const status = document.getElementById('filter-status').value;
       const priority = document.getElementById('filter-priority').value;
       const buildingId = document.getElementById('filter-building').value;
       const categoryId = document.getElementById('filter-category').value;
 
-      const params = new URLSearchParams();
-      if (search) params.append('search', search);
-      if (status) params.append('status', status);
-      if (priority) params.append('priority', priority);
-      if (buildingId) params.append('buildingId', buildingId);
-      if (categoryId) params.append('categoryId', categoryId);
-      params.append('size', '100');
+      if (state.isOnline) {
+        const params = new URLSearchParams();
+        if (search) params.append('search', search);
+        if (status) params.append('status', status);
+        if (priority) params.append('priority', priority);
+        if (buildingId) params.append('buildingId', buildingId);
+        if (categoryId) params.append('categoryId', categoryId);
+        params.append('size', '100');
 
-      try {
-        const res = await fetch(`${state.apiBase}/complaints?${params.toString()}`, { credentials: 'include' });
-        if (res.ok) {
-          const data = await res.json();
-          state.complaints = data.complaints || [];
-          document.getElementById('filtered-count-badge').textContent = state.complaints.length;
-          renderWorkOrdersTable(state.complaints);
-          renderRecentOrders(state.complaints.slice(0, 5));
+        try {
+          const res = await fetch(`${state.apiBase}/complaints?${params.toString()}`, { credentials: 'include' });
+          if (res.ok) {
+            const data = await res.json();
+            state.complaints = data.complaints || [];
+            document.getElementById('filtered-count-badge').textContent = state.complaints.length;
+            renderWorkOrdersTable(state.complaints);
+            renderRecentOrders(state.complaints.slice(0, 5));
+            return;
+          }
+        } catch (err) {
+          console.error('Failed work orders load', err);
         }
-      } catch (err) {
-        console.error('Failed work orders load', err);
       }
+
+      // Standalone / Offline fallback filtering
+      let list = [...MOCK_DATA.complaints];
+      if (state.currentUser?.role === 'STUDENT') {
+        list = list.filter(c => c.student?.email === state.currentUser.email || c.student?.id === state.currentUser.id);
+      } else if (state.currentUser?.role === 'MAINTENANCE_STAFF') {
+        list = list.filter(c => c.assignedStaff?.email === state.currentUser.email || c.assignedStaff?.id === state.currentUser.id);
+      }
+
+      if (search) {
+        list = list.filter(c => (c.title || '').toLowerCase().includes(search) || (c.complaintNumber || '').toLowerCase().includes(search) || (c.description || '').toLowerCase().includes(search));
+      }
+      if (status) list = list.filter(c => c.status === status);
+      if (priority) list = list.filter(c => c.priority === priority);
+      if (buildingId) list = list.filter(c => c.building?.id == buildingId);
+      if (categoryId) list = list.filter(c => c.category?.id == categoryId);
+
+      state.complaints = list;
+      document.getElementById('filtered-count-badge').textContent = state.complaints.length;
+      renderWorkOrdersTable(state.complaints);
+      renderRecentOrders(state.complaints.slice(0, 5));
     }
 
     function setQuickStatus(status) {
@@ -1774,29 +1956,31 @@
     }
 
     async function loadAuditLogs() {
-      if (!state.isOnline || state.currentUser?.role !== 'ADMIN') return;
-      try {
-        const res = await fetch(`${state.apiBase}/audit?limit=25`, { credentials: 'include' });
-        if (res.ok) {
-          const logs = await res.json();
-          const tbody = document.getElementById('audit-tbody');
-          if (!logs || logs.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4" style="color: var(--text-muted);">No audit logs recorded.</td></tr>`;
-            return;
-          }
-          tbody.innerHTML = logs.map(a => `
-            <tr>
-              <td class="small font-monospace" style="color: var(--text-muted);">${a.timestamp || '--'}</td>
-              <td><span class="badge border font-monospace small" style="background: var(--bg-muted); color: var(--text-main);">${escapeHtml(a.action || '')}</span></td>
-              <td class="small fw-semibold">${escapeHtml(a.entityName || '')} #${a.entityId || ''}</td>
-              <td class="small">${escapeHtml(a.userName || 'System')} <span class="badge bg-secondary-subtle text-secondary" style="font-size:0.65rem;">${a.userRole || ''}</span></td>
-              <td class="small" style="color: var(--text-muted);">${escapeHtml(a.details || '')}</td>
-            </tr>
-          `).join('');
+      if (state.currentUser?.role !== 'ADMIN') return;
+      let logs = null;
+      if (state.isOnline) {
+        try {
+          const res = await fetch(`${state.apiBase}/audit?limit=25`, { credentials: 'include' });
+          if (res.ok) logs = await res.json();
+        } catch (err) {
+          console.error('Failed audit load', err);
         }
-      } catch (err) {
-        console.error('Failed audit load', err);
       }
+      if (!logs) logs = MOCK_DATA.auditLogs;
+      const tbody = document.getElementById('audit-tbody');
+      if (!logs || logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4" style="color: var(--text-muted);">No audit logs recorded.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = logs.map(a => `
+        <tr>
+          <td class="small font-monospace" style="color: var(--text-muted);">${a.timestamp || '--'}</td>
+          <td><span class="badge border font-monospace small" style="background: var(--bg-muted); color: var(--text-main);">${escapeHtml(a.action || '')}</span></td>
+          <td class="small fw-semibold">${escapeHtml(a.entityName || '')} #${a.entityId || ''}</td>
+          <td class="small">${escapeHtml(a.userName || 'System')} <span class="badge bg-secondary-subtle text-secondary" style="font-size:0.65rem;">${a.userRole || ''}</span></td>
+          <td class="small" style="color: var(--text-muted);">${escapeHtml(a.details || '')}</td>
+        </tr>
+      `).join('');
     }
 
     // -------------------------------------------------------------------------
@@ -1804,73 +1988,80 @@
     // -------------------------------------------------------------------------
     async function openOrderDetail(id) {
       state.selectedComplaintId = id;
-      try {
-        const res = await fetch(`${state.apiBase}/complaints/${id}`, { credentials: 'include' });
-        if (res.ok) {
-          const c = await res.json();
-          state.currentDetailData = c;
-          document.getElementById('detail-ticket-num').textContent = c.complaintNumber;
-          document.getElementById('detail-title').textContent = c.title;
-          document.getElementById('detail-description').textContent = c.description;
-          document.getElementById('detail-category').textContent = c.category?.name || '--';
-          document.getElementById('detail-building-room').textContent = `${c.building?.name || ''} — Room ${c.roomNumber || ''} (${c.floor || ''})`;
-          document.getElementById('detail-student').textContent = `${c.student?.name || '--'} (${c.student?.department || ''})`;
-          document.getElementById('detail-assigned-staff').textContent = c.assignedStaff ? `${c.assignedStaff.name} (${c.assignedStaff.department})` : 'Unassigned';
-
-          // Badges
-          const sBadge = document.getElementById('detail-status-badge');
-          sBadge.textContent = c.status?.replace('_', ' ');
-          sBadge.className = `badge-status ${c.status?.toLowerCase()}`;
-
-          const pBadge = document.getElementById('detail-priority-badge');
-          pBadge.textContent = c.priority;
-          pBadge.className = `badge-priority ${c.priority?.toLowerCase()}`;
-
-          // Student satisfaction feedback (ONLY FOR STUDENT WHEN RESOLVED)
-          const ratingPanel = document.getElementById('student-rating-panel');
-          if (state.currentUser?.role === 'STUDENT' && (c.status === 'RESOLVED' || c.status === 'CLOSED')) {
-            ratingPanel.classList.remove('d-none');
-          } else {
-            ratingPanel.classList.add('d-none');
-          }
-
-          // Render Timeline
-          const timeline = document.getElementById('detail-timeline');
-          if (c.history && c.history.length > 0) {
-            timeline.innerHTML = c.history.map(h => `
-              <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <div class="small fw-semibold" style="color: var(--text-main);">${escapeHtml(h.action)} ${h.newStatus ? `&rarr; <span class="badge-status ${h.newStatus.toLowerCase()}">${h.newStatus}</span>` : ''}</div>
-                <div class="small" style="color: var(--text-muted);">${escapeHtml(h.details || '')}</div>
-                <div class="font-monospace" style="color: var(--text-muted); font-size: 0.7rem;">${h.performer} • ${h.timestamp}</div>
-              </div>
-            `).join('');
-          } else {
-            timeline.innerHTML = `<div class="small" style="color: var(--text-muted);">Ticket submitted at ${c.createdAt || 'N/A'}.</div>`;
-          }
-
-          // Render Comments
-          const commentList = document.getElementById('detail-comments-list');
-          if (c.comments && c.comments.length > 0) {
-            commentList.innerHTML = c.comments.map(cm => `
-              <div class="p-2 mb-2 rounded border small" style="background: var(--bg-muted);">
-                <div class="d-flex justify-content-between mb-1" style="color: var(--text-muted); font-size: 0.72rem;">
-                  <span class="fw-semibold" style="color: var(--text-main);">${escapeHtml(cm.authorName)} (${cm.authorRole})</span>
-                  <span>${cm.timestamp || ''}</span>
-                </div>
-                <div style="color: var(--text-main);">${escapeHtml(cm.content)}</div>
-              </div>
-            `).join('');
-          } else {
-            commentList.innerHTML = `<div class="small fst-italic" style="color: var(--text-muted);">No official comments logged yet.</div>`;
-          }
-
-          const modal = new bootstrap.Modal(document.getElementById('modal-order-detail'));
-          modal.show();
-        }
-      } catch (err) {
-        showToast('Error', 'Unable to fetch work order details: ' + err.message, 'danger');
+      let c = null;
+      if (state.isOnline) {
+        try {
+          const res = await fetch(`${state.apiBase}/complaints/${id}`, { credentials: 'include' });
+          if (res.ok) c = await res.json();
+        } catch (err) {}
       }
+      if (!c) {
+        c = MOCK_DATA.complaints.find(item => item.id == id);
+      }
+      if (!c) {
+        showToast('Error', 'Unable to find work order details', 'danger');
+        return;
+      }
+
+      state.currentDetailData = c;
+      document.getElementById('detail-ticket-num').textContent = c.complaintNumber;
+      document.getElementById('detail-title').textContent = c.title;
+      document.getElementById('detail-description').textContent = c.description;
+      document.getElementById('detail-category').textContent = c.category?.name || '--';
+      document.getElementById('detail-building-room').textContent = `${c.building?.name || ''} — Room ${c.roomNumber || ''} (${c.floor || ''})`;
+      document.getElementById('detail-student').textContent = `${c.student?.name || '--'} (${c.student?.department || ''})`;
+      document.getElementById('detail-assigned-staff').textContent = c.assignedStaff ? `${c.assignedStaff.name} (${c.assignedStaff.department})` : 'Unassigned';
+
+      // Badges
+      const sBadge = document.getElementById('detail-status-badge');
+      sBadge.textContent = c.status?.replace('_', ' ');
+      sBadge.className = `badge-status ${c.status?.toLowerCase()}`;
+
+      const pBadge = document.getElementById('detail-priority-badge');
+      pBadge.textContent = c.priority;
+      pBadge.className = `badge-priority ${c.priority?.toLowerCase()}`;
+
+      // Student satisfaction feedback (ONLY FOR STUDENT WHEN RESOLVED)
+      const ratingPanel = document.getElementById('student-rating-panel');
+      if (state.currentUser?.role === 'STUDENT' && (c.status === 'RESOLVED' || c.status === 'CLOSED')) {
+        ratingPanel.classList.remove('d-none');
+      } else {
+        ratingPanel.classList.add('d-none');
+      }
+
+      // Render Timeline
+      const timeline = document.getElementById('detail-timeline');
+      if (c.history && c.history.length > 0) {
+        timeline.innerHTML = c.history.map(h => `
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="small fw-semibold" style="color: var(--text-main);">${escapeHtml(h.action)} ${h.newStatus ? `&rarr; <span class="badge-status ${h.newStatus.toLowerCase()}">${h.newStatus}</span>` : ''}</div>
+            <div class="small" style="color: var(--text-muted);">${escapeHtml(h.details || '')}</div>
+            <div class="font-monospace" style="color: var(--text-muted); font-size: 0.7rem;">${h.performer} • ${h.timestamp}</div>
+          </div>
+        `).join('');
+      } else {
+        timeline.innerHTML = `<div class="small" style="color: var(--text-muted);">Ticket logged at ${c.createdAt || 'N/A'}.</div>`;
+      }
+
+      // Render Comments
+      const commentList = document.getElementById('detail-comments-list');
+      if (c.comments && c.comments.length > 0) {
+        commentList.innerHTML = c.comments.map(cm => `
+          <div class="p-2 mb-2 rounded border small" style="background: var(--bg-muted);">
+            <div class="d-flex justify-content-between mb-1" style="color: var(--text-muted); font-size: 0.72rem;">
+              <span class="fw-semibold" style="color: var(--text-main);">${escapeHtml(cm.authorName)} (${cm.authorRole})</span>
+              <span>${cm.timestamp || ''}</span>
+            </div>
+            <div style="color: var(--text-main);">${escapeHtml(cm.content)}</div>
+          </div>
+        `).join('');
+      } else {
+        commentList.innerHTML = `<div class="small fst-italic" style="color: var(--text-muted);">No official comments logged yet.</div>`;
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('modal-order-detail'));
+      modal.show();
     }
 
     function printWorkOrderSlip() {
@@ -1896,24 +2087,40 @@
       const status = document.getElementById('action-status-select').value;
       const details = document.getElementById('action-status-notes').value.trim() || 'Status changed via portal';
 
-      try {
-        const res = await fetch(`${state.apiBase}/complaints/${state.selectedComplaintId}/status`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ status, details })
+      if (state.isOnline) {
+        try {
+          const res = await fetch(`${state.apiBase}/complaints/${state.selectedComplaintId}/status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ status, details })
+          });
+          if (res.ok) {
+            showToast('Updated', `Status transitioned to ${status}`, 'success');
+            openOrderDetail(state.selectedComplaintId);
+            loadWorkOrders();
+            loadDashboardStats();
+            return;
+          }
+        } catch (err) {}
+      }
+
+      // Demo fallback
+      const c = MOCK_DATA.complaints.find(i => i.id == state.selectedComplaintId);
+      if (c) {
+        c.status = status;
+        c.history = c.history || [];
+        c.history.push({
+          action: 'STATUS_UPDATE',
+          newStatus: status,
+          details,
+          performer: state.currentUser.name,
+          timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19)
         });
-        if (res.ok) {
-          showToast('Updated', `Status transitioned to ${status}`, 'success');
-          openOrderDetail(state.selectedComplaintId);
-          loadWorkOrders();
-          loadDashboardStats();
-        } else {
-          const err = await res.json();
-          showToast('Error', err.message || 'Status transition failed', 'danger');
-        }
-      } catch (err) {
-        showToast('Error', err.message, 'danger');
+        showToast('Updated (Demo)', `Status transitioned to ${status}`, 'success');
+        openOrderDetail(state.selectedComplaintId);
+        loadWorkOrders();
+        loadDashboardStats();
       }
     }
 
@@ -1926,24 +2133,43 @@
         return;
       }
 
-      try {
-        const res = await fetch(`${state.apiBase}/complaints/${state.selectedComplaintId}/assign`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ staffId, priority, note: 'Dispatched for physical inspection' })
+      if (state.isOnline) {
+        try {
+          const res = await fetch(`${state.apiBase}/complaints/${state.selectedComplaintId}/assign`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ staffId, priority, note: 'Dispatched for physical inspection' })
+          });
+          if (res.ok) {
+            showToast('Assigned', 'Technician successfully dispatched.', 'success');
+            openOrderDetail(state.selectedComplaintId);
+            loadWorkOrders();
+            loadDashboardStats();
+            return;
+          }
+        } catch (err) {}
+      }
+
+      // Demo fallback
+      const c = MOCK_DATA.complaints.find(i => i.id == state.selectedComplaintId);
+      const st = MOCK_DATA.staff.find(s => s.id == staffId);
+      if (c && st) {
+        c.assignedStaff = st;
+        c.priority = priority;
+        c.status = 'ASSIGNED';
+        c.history = c.history || [];
+        c.history.push({
+          action: 'ASSIGN',
+          newStatus: 'ASSIGNED',
+          details: `Assigned to ${st.name} (${st.department})`,
+          performer: state.currentUser.name,
+          timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19)
         });
-        if (res.ok) {
-          showToast('Assigned', 'Technician successfully dispatched.', 'success');
-          openOrderDetail(state.selectedComplaintId);
-          loadWorkOrders();
-          loadDashboardStats();
-        } else {
-          const err = await res.json();
-          showToast('Error', err.message || 'Staff assignment failed', 'danger');
-        }
-      } catch (err) {
-        showToast('Error', err.message, 'danger');
+        showToast('Assigned (Demo)', 'Technician successfully dispatched.', 'success');
+        openOrderDetail(state.selectedComplaintId);
+        loadWorkOrders();
+        loadDashboardStats();
       }
     }
 
@@ -1953,19 +2179,35 @@
       const content = input.value.trim();
       if (!content) return;
 
-      try {
-        const res = await fetch(`${state.apiBase}/complaints/${state.selectedComplaintId}/comments`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ content, isInternal: false })
+      if (state.isOnline) {
+        try {
+          const res = await fetch(`${state.apiBase}/complaints/${state.selectedComplaintId}/comments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ content, isInternal: false })
+          });
+          if (res.ok) {
+            input.value = '';
+            openOrderDetail(state.selectedComplaintId);
+            return;
+          }
+        } catch (err) {}
+      }
+
+      // Demo fallback
+      const c = MOCK_DATA.complaints.find(i => i.id == state.selectedComplaintId);
+      if (c) {
+        c.comments = c.comments || [];
+        c.comments.push({
+          id: Date.now(),
+          content,
+          authorName: state.currentUser.name,
+          authorRole: state.currentUser.role,
+          timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19)
         });
-        if (res.ok) {
-          input.value = '';
-          openOrderDetail(state.selectedComplaintId);
-        }
-      } catch (err) {
-        showToast('Error', err.message, 'danger');
+        input.value = '';
+        openOrderDetail(state.selectedComplaintId);
       }
     }
 
@@ -1974,19 +2216,28 @@
       const rating = document.getElementById('feedback-rating-select').value;
       const comments = document.getElementById('feedback-comment-input').value.trim();
 
-      try {
-        const res = await fetch(`${state.apiBase}/complaints/${state.selectedComplaintId}/feedback`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ rating, comments })
-        });
-        if (res.ok) {
-          showToast('Feedback Received', 'Thank you for your rating!', 'success');
-          loadDashboardStats();
-        }
-      } catch (err) {
-        showToast('Error', err.message, 'danger');
+      if (state.isOnline) {
+        try {
+          const res = await fetch(`${state.apiBase}/complaints/${state.selectedComplaintId}/feedback`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ rating, comments })
+          });
+          if (res.ok) {
+            showToast('Feedback Received', 'Thank you for your rating!', 'success');
+            loadDashboardStats();
+            return;
+          }
+        } catch (err) {}
+      }
+
+      // Demo fallback
+      const c = MOCK_DATA.complaints.find(i => i.id == state.selectedComplaintId);
+      if (c) {
+        c.rating = parseInt(rating);
+        showToast('Feedback Received (Demo)', 'Thank you for rating our facilities service!', 'success');
+        loadDashboardStats();
       }
     }
 
@@ -2010,30 +2261,55 @@
         description: document.getElementById('req-desc').value.trim()
       };
 
-      try {
-        const res = await fetch(`${state.apiBase}/complaints`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(payload)
-        });
+      if (state.isOnline) {
+        try {
+          const res = await fetch(`${state.apiBase}/complaints`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(payload)
+          });
 
-        if (res.ok) {
-          const data = await res.json();
-          showToast('Success', `Work Order ${data.complaint?.complaintNumber || ''} created successfully!`, 'success');
-          document.getElementById('new-request-form').reset();
-          await refreshAllData();
-          switchView('workorders');
-        } else {
-          const err = await res.json();
-          showToast('Submission Failed', err.message || 'Please check form inputs', 'danger');
+          if (res.ok) {
+            const data = await res.json();
+            showToast('Success', `Work Order ${data.complaint?.complaintNumber || ''} created successfully!`, 'success');
+            document.getElementById('new-request-form').reset();
+            await refreshAllData();
+            switchView('workorders');
+            return;
+          }
+        } catch (err) {
+          console.error('Submit online error, fallback to demo', err);
         }
-      } catch (err) {
-        showToast('Error', 'Unable to reach backend: ' + err.message, 'danger');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit Work Order';
       }
+
+      // Demo fallback
+      const cat = state.categories.find(c => c.id == payload.categoryId) || { id: payload.categoryId, name: 'General' };
+      const bld = state.buildings.find(b => b.id == payload.buildingId) || { id: payload.buildingId, name: 'Campus Block', code: 'BLD' };
+      const newTicket = {
+        id: Date.now(),
+        complaintNumber: `CMP-2026-000${MOCK_DATA.complaints.length + 1}`,
+        title: payload.title,
+        description: payload.description,
+        category: cat,
+        building: bld,
+        floor: payload.floor,
+        roomNumber: payload.roomNumber,
+        locationDescription: payload.locationDescription,
+        priority: payload.priority,
+        status: 'OPEN',
+        student: state.currentUser,
+        assignedStaff: null,
+        createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        comments: []
+      };
+      MOCK_DATA.complaints.unshift(newTicket);
+      showToast('Success (Demo)', `Work Order ${newTicket.complaintNumber} lodged successfully!`, 'success');
+      document.getElementById('new-request-form').reset();
+      await refreshAllData();
+      switchView('workorders');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit Work Order';
     }
 
     // -------------------------------------------------------------------------

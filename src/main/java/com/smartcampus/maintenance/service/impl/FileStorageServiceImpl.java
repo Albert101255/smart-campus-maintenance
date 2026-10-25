@@ -46,4 +46,44 @@ public class FileStorageServiceImpl implements FileStorageService {
             throw new RuntimeException("Could not store file " + originalFilename + ". Please try again!", ex);
         }
     }
+
+    @Override
+    public String storeBase64Image(String dataUri, String subDirectory) {
+        if (dataUri == null || dataUri.isBlank()) {
+            return null;
+        }
+
+        String extension = ".jpg";
+        String base64Data = dataUri;
+        if (dataUri.contains(",")) {
+            String header = dataUri.substring(0, dataUri.indexOf(",")).toLowerCase();
+            base64Data = dataUri.substring(dataUri.indexOf(",") + 1);
+            if (header.contains("image/png")) {
+                extension = ".png";
+            } else if (header.contains("image/webp")) {
+                extension = ".webp";
+            } else if (header.contains("image/heic")) {
+                extension = ".heic";
+            } else if (header.contains("image/heif")) {
+                extension = ".heif";
+            } else if (header.contains("image/jpeg") || header.contains("image/jpg")) {
+                extension = ".jpg";
+            }
+        }
+
+        try {
+            byte[] bytes = java.util.Base64.getDecoder().decode(base64Data.trim());
+            String newFileName = UUID.randomUUID().toString() + extension;
+            Path targetLocation = Paths.get(uploadDir, subDirectory).toAbsolutePath().normalize();
+            Files.createDirectories(targetLocation);
+
+            Path filePath = targetLocation.resolve(newFileName);
+            Files.write(filePath, bytes);
+
+            return "/uploads/" + subDirectory + "/" + newFileName;
+        } catch (Exception ex) {
+            System.err.println("Failed to store base64 image: " + ex.getMessage());
+            return null;
+        }
+    }
 }

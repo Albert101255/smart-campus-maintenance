@@ -79,6 +79,9 @@ public class RestApiController {
     private DashboardService dashboardService;
 
     @Autowired
+    private FileStorageService fileStorageService;
+
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     private static final DateTimeFormatter ISO_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -365,6 +368,15 @@ public class RestApiController {
         }
 
         Complaint created = complaintService.createComplaint(req, student);
+
+        if (body.get("imageData") != null && !body.get("imageData").toString().isBlank()) {
+            String imagePath = fileStorageService.storeBase64Image(body.get("imageData").toString(), "complaints");
+            if (imagePath != null) {
+                created.setBeforeImagePath(imagePath);
+                created = complaintRepository.save(created);
+            }
+        }
+
         Map<String, Object> resp = new LinkedHashMap<>();
         resp.put("success", true);
         resp.put("message", "Work order " + created.getComplaintNumber() + " submitted successfully.");
@@ -555,6 +567,8 @@ public class RestApiController {
         m.put("createdAt", c.getCreatedAt() != null ? c.getCreatedAt().format(ISO_FMT) : null);
         m.put("updatedAt", c.getUpdatedAt() != null ? c.getUpdatedAt().format(ISO_FMT) : null);
         m.put("resolvedAt", c.getResolvedAt() != null ? c.getResolvedAt().format(ISO_FMT) : null);
+        m.put("beforeImagePath", c.getBeforeImagePath());
+        m.put("afterImagePath", c.getAfterImagePath());
 
         if (c.getCategory() != null) {
             m.put("category", Map.of("id", c.getCategory().getId(), "name", c.getCategory().getName()));

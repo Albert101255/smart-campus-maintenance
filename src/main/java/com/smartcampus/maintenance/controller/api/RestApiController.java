@@ -287,6 +287,12 @@ public class RestApiController {
         }
 
         Map<String, Object> detail = formatComplaintMap(complaint);
+        if (complaint.getBeforeImagePath() != null && !complaint.getBeforeImagePath().isBlank()) {
+            String dataUri = fileStorageService.loadAsDataUri(complaint.getBeforeImagePath());
+            if (dataUri != null) {
+                detail.put("imageData", dataUri);
+            }
+        }
 
         // Timeline history
         List<ComplaintHistory> histories = complaintService.getComplaintHistory(complaint);
@@ -380,7 +386,11 @@ public class RestApiController {
         Map<String, Object> resp = new LinkedHashMap<>();
         resp.put("success", true);
         resp.put("message", "Work order " + created.getComplaintNumber() + " submitted successfully.");
-        resp.put("complaint", formatComplaintMap(created));
+        Map<String, Object> complaintMap = formatComplaintMap(created);
+        if (body.get("imageData") != null && !body.get("imageData").toString().isBlank()) {
+            complaintMap.put("imageData", body.get("imageData").toString());
+        }
+        resp.put("complaint", complaintMap);
         return ResponseEntity.ok(resp);
     }
 

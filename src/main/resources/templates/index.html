@@ -2267,6 +2267,27 @@
     // -------------------------------------------------------------------------
     // Work Order Detail Modal
     // -------------------------------------------------------------------------
+    function getResolvedPhotoUrl(c) {
+      if (!c) return null;
+      if (c.imageData && c.imageData.length > 20) {
+        return c.imageData;
+      }
+      const raw = c.beforeImagePath || c.imageData;
+      if (!raw) return null;
+      if (raw.startsWith('data:') || raw.startsWith('http://') || raw.startsWith('https://')) {
+        return raw;
+      }
+      if (raw.startsWith('/uploads/')) {
+        try {
+          if (state.apiBase && (state.apiBase.startsWith('http://') || state.apiBase.startsWith('https://'))) {
+            const origin = new URL(state.apiBase, window.location.href).origin;
+            return `${origin}${raw}`;
+          }
+        } catch (e) {}
+      }
+      return raw;
+    }
+
     async function openOrderDetail(id) {
       state.selectedComplaintId = id;
       let c = null;
@@ -2306,8 +2327,25 @@
       const photoSection = document.getElementById('detail-photo-section');
       const photoImg = document.getElementById('detail-photo-img');
       const photoLink = document.getElementById('detail-photo-link');
-      const photoUrl = c.beforeImagePath || c.imageData;
+      const photoUrl = getResolvedPhotoUrl(c);
       if (photoUrl) {
+        photoImg.onerror = function() {
+          if (c.beforeImagePath && state.apiBase && state.apiBase.startsWith('http')) {
+            try {
+              const origin = new URL(state.apiBase, window.location.href).origin;
+              const fullUrl = origin + (c.beforeImagePath.startsWith('/') ? '' : '/') + c.beforeImagePath;
+              if (this.src !== fullUrl) {
+                this.src = fullUrl;
+                photoLink.href = fullUrl;
+                return;
+              }
+            } catch (e) {}
+          }
+          photoSection.classList.add('d-none');
+        };
+        photoImg.onload = function() {
+          photoSection.classList.remove('d-none');
+        };
         photoImg.src = photoUrl;
         photoLink.href = photoUrl;
         photoSection.classList.remove('d-none');
@@ -2372,7 +2410,7 @@
 
       const printPhotoRow = document.getElementById('print-photo-row');
       const printPhotoImg = document.getElementById('print-photo-img');
-      const photoUrl = c.beforeImagePath || c.imageData;
+      const photoUrl = getResolvedPhotoUrl(c);
       if (photoUrl && printPhotoRow && printPhotoImg) {
         printPhotoImg.src = photoUrl;
         printPhotoRow.style.display = 'table-row';
@@ -2673,6 +2711,7 @@
         student: state.currentUser,
         assignedStaff: null,
         beforeImagePath: state.currentPhotoData || null,
+        imageData: state.currentPhotoData || null,
         createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
         comments: []
       };

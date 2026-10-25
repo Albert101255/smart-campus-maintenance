@@ -86,4 +86,38 @@ public class FileStorageServiceImpl implements FileStorageService {
             return null;
         }
     }
+
+    @Override
+    public String loadAsDataUri(String relativePath) {
+        if (relativePath == null || relativePath.isBlank()) {
+            return null;
+        }
+        try {
+            String cleanPath = relativePath.trim();
+            if (cleanPath.startsWith("/uploads/")) {
+                cleanPath = cleanPath.substring("/uploads/".length());
+            } else if (cleanPath.startsWith("uploads/")) {
+                cleanPath = cleanPath.substring("uploads/".length());
+            }
+            Path filePath = Paths.get(uploadDir, cleanPath).toAbsolutePath().normalize();
+            if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
+                return null;
+            }
+            byte[] bytes = Files.readAllBytes(filePath);
+            String mimeType = Files.probeContentType(filePath);
+            if (mimeType == null) {
+                String lower = filePath.getFileName().toString().toLowerCase();
+                if (lower.endsWith(".png")) mimeType = "image/png";
+                else if (lower.endsWith(".webp")) mimeType = "image/webp";
+                else if (lower.endsWith(".heic")) mimeType = "image/heic";
+                else if (lower.endsWith(".heif")) mimeType = "image/heif";
+                else mimeType = "image/jpeg";
+            }
+            String base64 = java.util.Base64.getEncoder().encodeToString(bytes);
+            return "data:" + mimeType + ";base64," + base64;
+        } catch (Exception ex) {
+            System.err.println("Could not load image as data URI: " + ex.getMessage());
+            return null;
+        }
+    }
 }

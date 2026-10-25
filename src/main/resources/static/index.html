@@ -1495,6 +1495,28 @@
     document.addEventListener("DOMContentLoaded", () => {
       initTheme();
       document.getElementById('config-api-url').value = state.apiBase;
+
+      // 1. Immediately restore cached session from localStorage so page refresh maintains login!
+      const savedUserStr = localStorage.getItem('scm_user');
+      if (savedUserStr) {
+        try {
+          const cachedUser = JSON.parse(savedUserStr);
+          if (cachedUser && cachedUser.email) {
+            state.currentUser = cachedUser;
+            const targetView = localStorage.getItem('scm_active_view') || 'dashboard';
+            loginUserSuccess(cachedUser, targetView);
+          } else {
+            showAuthScreen();
+          }
+        } catch (e) {
+          localStorage.removeItem('scm_user');
+          showAuthScreen();
+        }
+      } else {
+        showAuthScreen();
+      }
+
+      // 2. Connect to backend in background and sync session
       initApiConnection();
     });
 
@@ -1531,7 +1553,10 @@
           }
         }
         if (banner) banner.classList.remove('d-none');
-        showAuthScreen();
+        // Do NOT kick user out to login screen if they already have an active session!
+        if (!state.currentUser && !localStorage.getItem('scm_user')) {
+          showAuthScreen();
+        }
       }
     }
 
@@ -1548,14 +1573,20 @@
         if (res.ok) {
           const data = await res.json();
           if (data.authenticated && data.user) {
-            loginUserSuccess(data.user);
+            state.currentUser = data.user;
+            localStorage.setItem('scm_user', JSON.stringify(data.user));
+            applyRolePermissions(data.user);
+            refreshAllData();
             return;
           }
         }
       } catch (e) {
         console.warn('Session check failed', e);
       }
-      showAuthScreen();
+      // If server returned unauthenticated, only show auth screen if there is no session
+      if (!state.currentUser && !localStorage.getItem('scm_user')) {
+        showAuthScreen();
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -1563,6 +1594,7 @@
     // -------------------------------------------------------------------------
     function showAuthScreen() {
       state.currentUser = null;
+      localStorage.removeItem('scm_user');
       document.getElementById('main-header').classList.add('d-none');
       document.getElementById('main-content-area').classList.add('d-none');
       document.getElementById('view-login-screen').classList.remove('d-none');
@@ -1570,15 +1602,17 @@
       if (serverStatusPill) serverStatusPill.classList.add('d-none');
     }
 
-    function loginUserSuccess(user) {
+    function loginUserSuccess(user, targetView) {
       state.currentUser = user;
+      localStorage.setItem('scm_user', JSON.stringify(user));
       document.getElementById('view-login-screen').classList.add('d-none');
       document.getElementById('main-header').classList.remove('d-none');
       document.getElementById('main-content-area').classList.remove('d-none');
 
       applyRolePermissions(user);
       refreshAllData();
-      switchView('dashboard');
+      const viewToGo = targetView || localStorage.getItem('scm_active_view') || 'dashboard';
+      switchView(viewToGo);
     }
 
     async function quickLogin(email, password) {
@@ -1666,10 +1700,12 @@
     }
 
     async function logoutSession() {
+      localStorage.removeItem('scm_user');
+      localStorage.removeItem('scm_active_view');
       try {
         await fetch(`${state.apiBase}/auth/logout`, { method: 'POST', credentials: 'include' });
       } catch (e) {}
-      showToast('Signed Out', 'You have been logged out.', 'info');
+      showToast('Signed Out', 'You have been logged out successfully.', 'info');
       showAuthScreen();
     }
 
@@ -1857,6 +1893,8 @@
     // View Navigation
     // -------------------------------------------------------------------------
     function switchView(viewName) {
+      if (!viewName || viewName === 'login-screen') return;
+      localStorage.setItem('scm_active_view', viewName);
       document.querySelectorAll('.app-view').forEach(el => el.classList.add('d-none'));
       const target = document.getElementById(`view-${viewName}`);
       if (target) target.classList.remove('d-none');

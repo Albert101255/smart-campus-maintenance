@@ -357,22 +357,6 @@
 
     .toast-container { position: fixed; top: 75px; right: 20px; z-index: 1080; }
 
-    /* Login Screen Card */
-    .auth-credential-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 1.2rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      height: 100%;
-    }
-    .auth-credential-card:hover {
-      border-color: var(--primary);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
-    }
-
     /* Print Slip */
     @media print {
       body * { visibility: hidden; }
@@ -465,100 +449,49 @@
   <!-- =================================================================== -->
   <!-- VIEW: AUTHENTICATION / LOGIN SCREEN (WHEN NOT LOGGED IN)            -->
   <!-- =================================================================== -->
-  <section id="view-login-screen" class="app-view d-none py-5 flex-grow-1">
-    <div class="container" style="max-width: 900px;">
+  <section id="view-login-screen" class="app-view d-none py-5 flex-grow-1 d-flex align-items-center">
+    <div class="container" style="max-width: 440px;">
       
-      <!-- Institutional Branding Header -->
-      <div class="text-center mb-5">
-        <div class="brand-mark mx-auto mb-3" style="width: 52px; height: 52px; font-size: 1.6rem;">
-          <i class="fa-solid fa-building-shield"></i>
+      <!-- Institutional Branding & Login Card -->
+      <div class="enterprise-card p-4 p-sm-5 shadow-sm">
+        <div class="text-center mb-4">
+          <div class="brand-mark mx-auto mb-3" style="width: 52px; height: 52px; font-size: 1.5rem;">
+            <i class="fa-solid fa-building-shield"></i>
+          </div>
+          <h4 class="fw-bold mb-1" style="color: var(--text-main);">Smart Campus Portal</h4>
+          <p class="small mb-0" style="color: var(--text-muted);">Sign in with your institutional credentials</p>
         </div>
-        <h2 class="fw-bold mb-1" style="color: var(--text-main);">Smart Campus Maintenance Portal</h2>
-        <p class="small mb-0" style="color: var(--text-muted);">Centralized facilities operations, incident tracking, and trade technician dispatch.</p>
-      </div>
 
-      <!-- Quick 1-Click Role Login Cards -->
-      <div class="mb-5">
-        <h6 class="small fw-bold text-uppercase tracking-wider text-center mb-3" style="color: var(--text-muted);">
-          Select Your Institutional Role To Sign In
-        </h6>
-        <div class="row g-3">
-          
-          <!-- 1. STUDENT CARD -->
-          <div class="col-md-4">
-            <div class="auth-credential-card" onclick="quickLogin('student@smartcampus.com', 'Student@123')">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <span class="badge bg-primary text-white">STUDENT</span>
-                <i class="fa-solid fa-graduation-cap text-primary fs-5"></i>
-              </div>
-              <h5 class="fw-bold mb-1 fs-6" style="color: var(--text-main);">Alex Morgan</h5>
-              <div class="small font-monospace mb-2" style="color: var(--text-muted);">student@smartcampus.com</div>
-              <p class="small mb-3" style="color: var(--text-secondary); min-height: 48px;">
-                Can submit infrastructure complaints, track repair status, and rate service satisfaction.
-              </p>
-              <button class="btn btn-primary btn-sm w-100 fw-semibold">
-                Sign In as Student &rarr;
-              </button>
+        <form onsubmit="handleAuthLogin(event)">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold" for="auth-email">Email Address</label>
+            <div class="input-group">
+              <span class="input-group-text bg-transparent text-muted" style="border-color: var(--border-color);">
+                <i class="fa-regular fa-envelope"></i>
+              </span>
+              <input type="email" id="auth-email" class="form-control" required placeholder="user@smartcampus.com" autocomplete="username">
             </div>
           </div>
-
-          <!-- 2. ADMINISTRATOR CARD -->
-          <div class="col-md-4">
-            <div class="auth-credential-card" onclick="quickLogin('admin@smartcampus.com', 'Admin@123')">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <span class="badge bg-danger text-white">ADMINISTRATOR</span>
-                <i class="fa-solid fa-shield-halved text-danger fs-5"></i>
-              </div>
-              <h5 class="fw-bold mb-1 fs-6" style="color: var(--text-main);">Chief Administrator</h5>
-              <div class="small font-monospace mb-2" style="color: var(--text-muted);">admin@smartcampus.com</div>
-              <p class="small mb-3" style="color: var(--text-secondary); min-height: 48px;">
-                Monitors operations dashboard, reviews SLA compliance, assigns staff, and inspects audit logs.
-              </p>
-              <button class="btn btn-danger btn-sm w-100 fw-semibold">
-                Sign In as Admin &rarr;
-              </button>
+          <div class="mb-4">
+            <label class="form-label small fw-semibold" for="auth-password">Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-transparent text-muted" style="border-color: var(--border-color);">
+                <i class="fa-solid fa-lock"></i>
+              </span>
+              <input type="password" id="auth-password" class="form-control" required placeholder="••••••••" autocomplete="current-password">
             </div>
           </div>
+          <button type="submit" id="btn-auth-signin" class="btn btn-primary w-100 fw-semibold py-2">
+            Sign In
+          </button>
+        </form>
 
-          <!-- 3. MAINTENANCE STAFF CARD -->
-          <div class="col-md-4">
-            <div class="auth-credential-card" onclick="quickLogin('staff@smartcampus.com', 'Staff@123')">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <span class="badge bg-warning text-dark">TECHNICIAN</span>
-                <i class="fa-solid fa-helmet-safety text-warning fs-5"></i>
-              </div>
-              <h5 class="fw-bold mb-1 fs-6" style="color: var(--text-main);">Ravi Kumar</h5>
-              <div class="small font-monospace mb-2" style="color: var(--text-muted);">staff@smartcampus.com</div>
-              <p class="small mb-3" style="color: var(--text-secondary); min-height: 48px;">
-                Reviews assigned repair tickets, transitions work states, and prints field technician slips.
-              </p>
-              <button class="btn btn-warning btn-sm w-100 fw-semibold text-dark">
-                Sign In as Technician &rarr;
-              </button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Manual Credentials Form -->
-      <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-          <div class="enterprise-card p-4">
-            <h6 class="fw-bold mb-3 small text-uppercase" style="color: var(--text-main);">Or Sign In With Custom Credentials</h6>
-            <form onsubmit="handleAuthLogin(event)">
-              <div class="mb-3">
-                <label class="form-label small fw-semibold">Email Address</label>
-                <input type="email" id="auth-email" class="form-control form-control-sm" required placeholder="user@smartcampus.com">
-              </div>
-              <div class="mb-3">
-                <label class="form-label small fw-semibold">Password</label>
-                <input type="password" id="auth-password" class="form-control form-control-sm" required placeholder="••••••••">
-              </div>
-              <button type="submit" id="btn-auth-signin" class="btn btn-outline-primary btn-sm w-100 fw-semibold">
-                Sign In With Password
-              </button>
-            </form>
+        <div class="mt-4 pt-3 border-top text-center">
+          <div class="small text-muted" style="font-size: 0.78rem;">
+            Institutional logins: <br>
+            <a href="javascript:void(0)" class="text-decoration-none" onclick="fillLogin('student@smartcampus.com', 'Student@123')">Student</a> &bull; 
+            <a href="javascript:void(0)" class="text-decoration-none" onclick="fillLogin('admin@smartcampus.com', 'Admin@123')">Admin</a> &bull; 
+            <a href="javascript:void(0)" class="text-decoration-none" onclick="fillLogin('staff@smartcampus.com', 'Staff@123')">Technician</a>
           </div>
         </div>
       </div>
@@ -1392,6 +1325,13 @@
       } catch (err) {
         showToast('Error', 'Unable to reach backend: ' + err.message, 'danger');
       }
+    }
+
+    function fillLogin(email, password) {
+      const emailEl = document.getElementById('auth-email');
+      const passEl = document.getElementById('auth-password');
+      if (emailEl) emailEl.value = email;
+      if (passEl) passEl.value = password;
     }
 
     async function handleAuthLogin(e) {

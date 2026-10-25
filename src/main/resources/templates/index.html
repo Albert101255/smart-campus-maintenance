@@ -1756,19 +1756,17 @@
         const recentH = document.getElementById('recent-table-heading');
         if (recentH) recentH.textContent = 'My Reported Complaints';
 
-        // Student Navigation: Dashboard | My Complaints | Submit Request | Campus Buildings
-        // (NO Audit Log, NO Technicians Directory)
+        // Student Navigation: Dashboard | My Complaints | Submit Request
+        // (Buildings is reserved exclusively for Administrators)
         desktopNav.innerHTML = `
           <button class="nav-pill-btn active" onclick="switchView('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
           <button class="nav-pill-btn" onclick="switchView('workorders')"><i class="fa-solid fa-clipboard-check"></i> My Complaints</button>
           <button class="nav-pill-btn" onclick="switchView('newrequest')"><i class="fa-solid fa-circle-plus text-primary"></i> Submit Request</button>
-          <button class="nav-pill-btn" onclick="switchView('buildings')"><i class="fa-regular fa-building"></i> Buildings</button>
         `;
         mobileNav.innerHTML = `
           <button class="nav-pill-btn active py-1 px-2" onclick="switchView('dashboard')">Dashboard</button>
           <button class="nav-pill-btn py-1 px-2" onclick="switchView('workorders')">My Complaints</button>
           <button class="nav-pill-btn py-1 px-2" onclick="switchView('newrequest')">Submit</button>
-          <button class="nav-pill-btn py-1 px-2" onclick="switchView('buildings')">Buildings</button>
         `;
 
         // Dashboard Header
@@ -1857,17 +1855,15 @@
         const recentH = document.getElementById('recent-table-heading');
         if (recentH) recentH.textContent = 'My Assigned Work Orders';
 
-        // Staff Navigation: Dashboard | Assigned Work Orders | Buildings
-        // (NO Submit Request, NO Audit Log, NO Technicians Directory)
+        // Staff Navigation: Dashboard | Assigned Work Orders
+        // (Buildings is reserved exclusively for Administrators)
         desktopNav.innerHTML = `
           <button class="nav-pill-btn active" onclick="switchView('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
           <button class="nav-pill-btn" onclick="switchView('workorders')"><i class="fa-solid fa-wrench"></i> Assigned Work Orders</button>
-          <button class="nav-pill-btn" onclick="switchView('buildings')"><i class="fa-regular fa-building"></i> Buildings</button>
         `;
         mobileNav.innerHTML = `
           <button class="nav-pill-btn active py-1 px-2" onclick="switchView('dashboard')">Dashboard</button>
           <button class="nav-pill-btn py-1 px-2" onclick="switchView('workorders')">Assigned Work Orders</button>
-          <button class="nav-pill-btn py-1 px-2" onclick="switchView('buildings')">Buildings</button>
         `;
 
         // Dashboard Header
@@ -1897,6 +1893,10 @@
     // -------------------------------------------------------------------------
     function switchView(viewName) {
       if (!viewName || viewName === 'login-screen') return;
+      // Guard admin-only views: Buildings, Staff Directory, Audit Log
+      if ((viewName === 'buildings' || viewName === 'staff' || viewName === 'audit') && state.currentUser?.role !== 'ADMIN') {
+        viewName = 'dashboard';
+      }
       localStorage.setItem('scm_active_view', viewName);
       document.querySelectorAll('.app-view').forEach(el => el.classList.add('d-none'));
       const target = document.getElementById(`view-${viewName}`);

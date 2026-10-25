@@ -246,8 +246,18 @@ public class RestApiController {
             @RequestParam(required = false) Long studentId,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size
+            @RequestParam(defaultValue = "50") int size,
+            Authentication auth
     ) {
+        User currentUser = resolveUser(auth, false);
+        if (currentUser != null) {
+            if (currentUser.getRole() == Role.STUDENT && studentId == null) {
+                studentId = currentUser.getId();
+            } else if (currentUser.getRole() == Role.MAINTENANCE_STAFF && staffId == null) {
+                staffId = currentUser.getId();
+            }
+        }
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Complaint> complaintPage = complaintService.filterComplaints(
                 status, priority, categoryId, buildingId, staffId, studentId, search, pageable
@@ -321,6 +331,10 @@ public class RestApiController {
 
     @PostMapping("/complaints")
     public ResponseEntity<?> createComplaint(@RequestBody Map<String, Object> body, Authentication auth) {
+        User user = resolveUser(auth, false);
+        if (user != null && user.getRole() == Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Administrators monitor and manage operations; complaints must be submitted by students."));
+        }
         User student = resolveStudent(auth);
 
         ComplaintCreateRequest req = new ComplaintCreateRequest();
@@ -381,6 +395,10 @@ public class RestApiController {
 
     @PostMapping("/complaints/{id}/assign")
     public ResponseEntity<?> assignStaff(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        User user = resolveUser(auth, false);
+        if (user != null && user.getRole() != Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Only campus administrators can assign technicians."));
+        }
         User adminUser = resolveAdmin(auth);
         Long staffId = Long.valueOf(body.get("staffId").toString());
         PriorityLevel priority = PriorityLevel.MEDIUM;
@@ -421,6 +439,10 @@ public class RestApiController {
 
     @PostMapping("/complaints/{id}/feedback")
     public ResponseEntity<?> submitFeedback(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        User user = resolveUser(auth, false);
+        if (user != null && user.getRole() != Role.STUDENT) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Service satisfaction rating is reserved for students."));
+        }
         User student = resolveStudent(auth);
         Integer rating = Integer.valueOf(body.get("rating").toString());
         String comments = (String) body.getOrDefault("comments", "");
@@ -483,7 +505,11 @@ public class RestApiController {
     }
 
     @GetMapping("/audit")
-    public ResponseEntity<List<Map<String, Object>>> getAuditLogs(@RequestParam(defaultValue = "20") int limit) {
+    public ResponseEntity<?> getAuditLogs(Authentication auth, @RequestParam(defaultValue = "20") int limit) {
+        User user = resolveUser(auth, false);
+        if (user != null && user.getRole() != Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Access denied: Audit log is restricted to campus administrators."));
+        }
         Page<AuditLog> page = auditService.getAuditLogs(PageRequest.of(0, limit));
         List<Map<String, Object>> dtoList = page.getContent().stream().map(a -> {
             Map<String, Object> m = new LinkedHashMap<>();

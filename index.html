@@ -403,8 +403,8 @@
             <i class="fa-solid fa-moon" id="theme-icon"></i>
           </button>
 
-          <!-- API Server Status Badge -->
-          <button class="connection-pill" onclick="openServerConfigModal()" title="Click to check or configure API endpoint">
+          <!-- API Server Status Badge (Administrator Only) -->
+          <button class="connection-pill d-none" id="admin-server-status-pill" onclick="openServerConfigModal()" title="Click to check or configure API endpoint">
             <span class="status-dot" id="server-status-dot"></span>
             <span id="server-status-text">Checking Backend...</span>
           </button>
@@ -1404,6 +1404,8 @@
       document.getElementById('main-header').classList.add('d-none');
       document.getElementById('main-content-area').classList.add('d-none');
       document.getElementById('view-login-screen').classList.remove('d-none');
+      const serverStatusPill = document.getElementById('admin-server-status-pill');
+      if (serverStatusPill) serverStatusPill.classList.add('d-none');
     }
 
     function loginUserSuccess(user) {
@@ -1515,6 +1517,16 @@
     function applyRolePermissions(user) {
       const role = user.role;
       
+      // Server status badge: ONLY VISIBLE TO ADMINISTRATOR
+      const serverStatusPill = document.getElementById('admin-server-status-pill');
+      if (serverStatusPill) {
+        if (role === 'ADMIN') {
+          serverStatusPill.classList.remove('d-none');
+        } else {
+          serverStatusPill.classList.add('d-none');
+        }
+      }
+
       // Update User Menu in Top Navbar
       document.getElementById('current-user-name').textContent = user.name;
       document.getElementById('menu-user-name').textContent = user.name;

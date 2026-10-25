@@ -471,7 +471,7 @@
           <p class="small mb-0" style="color: var(--text-muted);">Sign in with your institutional credentials</p>
         </div>
 
-        <form onsubmit="handleAuthLogin(event)">
+        <form id="auth-form" onsubmit="handleAuthLogin(event)">
           <div class="mb-3">
             <label class="form-label small fw-semibold" for="auth-email">Email Address</label>
             <div class="input-group">
@@ -1361,6 +1361,30 @@
       filterDebounceTimer: null
     };
 
+    // -------------------------------------------------------------------------
+    // Persistent Local Storage Utilities for Complaints
+    // -------------------------------------------------------------------------
+    function loadStoredComplaints() {
+      try {
+        const raw = localStorage.getItem('scm_saved_complaints');
+        if (raw) {
+          const list = JSON.parse(raw);
+          if (Array.isArray(list) && list.length > 0) {
+            return list;
+          }
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    function persistComplaintsLocally(complaints) {
+      try {
+        if (Array.isArray(complaints)) {
+          localStorage.setItem('scm_saved_complaints', JSON.stringify(complaints));
+        }
+      } catch (e) {}
+    }
+
     // Standalone fallback seed data for GitHub Pages or offline testing
     const MOCK_DATA = {
       categories: [
@@ -1384,7 +1408,7 @@
         { id: 3, name: 'Sarah Jenkins', email: 'staff2@smartcampus.com', department: 'HVAC & Climate Control', phoneNumber: '+1 555-0155' },
         { id: 4, name: 'David Chen', email: 'staff3@smartcampus.com', department: 'Network & IT Infrastructure', phoneNumber: '+1 555-0166' }
       ],
-      complaints: [
+      complaints: loadStoredComplaints() || [
         {
           id: 1,
           complaintNumber: 'CMP-2026-0001',
@@ -1495,19 +1519,26 @@
     // -------------------------------------------------------------------------
     // Initialization
     // -------------------------------------------------------------------------
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       initTheme();
       document.getElementById('config-api-url').value = state.apiBase;
 
       // 1. Immediately restore cached session from localStorage so page refresh maintains login!
       const savedUserStr = localStorage.getItem('scm_user');
+      let restoredUser = null;
       if (savedUserStr) {
         try {
-          const cachedUser = JSON.parse(savedUserStr);
-          if (cachedUser && cachedUser.email) {
-            state.currentUser = cachedUser;
+          restoredUser = JSON.parse(savedUserStr);
+          if (restoredUser && restoredUser.email) {
+            state.currentUser = restoredUser;
             const targetView = localStorage.getItem('scm_active_view') || 'dashboard';
-            loginUserSuccess(cachedUser, targetView);
+            document.getElementById('view-login-screen').classList.add('d-none');
+            document.getElementById('main-header').classList.remove('d-none');
+            document.getElementById('main-content-area').classList.remove('d-none');
+            applyRolePermissions(restoredUser);
+            switchView(targetView);
+            // Render locally cached complaints immediately
+            refreshAllData();
           } else {
             showAuthScreen();
           }
@@ -1519,8 +1550,13 @@
         showAuthScreen();
       }
 
-      // 2. Connect to backend in background and sync session
-      initApiConnection();
+      // 2. Connect to backend API
+      await initApiConnection();
+
+      // 3. Re-sync live data once backend connection status is verified
+      if (state.currentUser) {
+        await refreshAllData();
+      }
     });
 
     async function initApiConnection() {
@@ -1937,6 +1973,7 @@
         }
       }
       if (!s) {
+        MOCK_DATA.complaints = loadStoredComplaints() || MOCK_DATA.complaints;
         const total = MOCK_DATA.complaints.length;
         const open = MOCK_DATA.complaints.filter(c => c.status === 'OPEN').length;
         const assigned = MOCK_DATA.complaints.filter(c => c.status === 'ASSIGNED').length;
@@ -2137,6 +2174,8 @@
             document.getElementById('filtered-count-badge').textContent = state.complaints.length;
             renderWorkOrdersTable(state.complaints);
             renderRecentOrders(state.complaints.slice(0, 5));
+            MOCK_DATA.complaints = state.complaints;
+            persistComplaintsLocally(state.complaints);
             return;
           }
         } catch (err) {
@@ -2145,6 +2184,7 @@
       }
 
       // Standalone / Offline fallback filtering
+      MOCK_DATA.complaints = loadStoredComplaints() || MOCK_DATA.complaints;
       let list = [...MOCK_DATA.complaints];
       if (state.currentUser?.role === 'STUDENT') {
         list = list.filter(c => c.student?.email === state.currentUser.email || c.student?.id === state.currentUser.id);
@@ -2459,6 +2499,7 @@
           performer: state.currentUser.name,
           timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19)
         });
+        persistComplaintsLocally(MOCK_DATA.complaints);
         showToast('Updated (Demo)', `Status transitioned to ${status}`, 'success');
         openOrderDetail(state.selectedComplaintId);
         loadWorkOrders();
@@ -2508,6 +2549,7 @@
           performer: state.currentUser.name,
           timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19)
         });
+        persistComplaintsLocally(MOCK_DATA.complaints);
         showToast('Assigned (Demo)', 'Technician successfully dispatched.', 'success');
         openOrderDetail(state.selectedComplaintId);
         loadWorkOrders();
@@ -2548,6 +2590,7 @@
           authorRole: state.currentUser.role,
           timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19)
         });
+        persistComplaintsLocally(MOCK_DATA.complaints);
         input.value = '';
         openOrderDetail(state.selectedComplaintId);
       }
@@ -2578,6 +2621,7 @@
       const c = MOCK_DATA.complaints.find(i => i.id == state.selectedComplaintId);
       if (c) {
         c.rating = parseInt(rating);
+        persistComplaintsLocally(MOCK_DATA.complaints);
         showToast('Feedback Received (Demo)', 'Thank you for rating our facilities service!', 'success');
         loadDashboardStats();
       }
@@ -2682,10 +2726,16 @@
           if (res.ok) {
             const data = await res.json();
             showToast('Success', `Work Order ${data.complaint?.complaintNumber || ''} created successfully!`, 'success');
+            if (data.complaint) {
+              MOCK_DATA.complaints.unshift(data.complaint);
+              persistComplaintsLocally(MOCK_DATA.complaints);
+            }
             document.getElementById('new-request-form').reset();
             removeSelectedPhoto();
             await refreshAllData();
             switchView('workorders');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit Work Order';
             return;
           }
         } catch (err) {
@@ -2716,6 +2766,7 @@
         comments: []
       };
       MOCK_DATA.complaints.unshift(newTicket);
+      persistComplaintsLocally(MOCK_DATA.complaints);
       showToast('Success (Demo)', `Work Order ${newTicket.complaintNumber} lodged successfully!`, 'success');
       document.getElementById('new-request-form').reset();
       removeSelectedPhoto();

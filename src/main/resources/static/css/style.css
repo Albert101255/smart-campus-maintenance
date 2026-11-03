@@ -261,7 +261,7 @@ body {
     padding: 0 0.85rem;
     background: transparent;
     border-left: none !important;
-    color: var(--secondary-color, #64748b);
+    color: var(--secondary-color, #64748b) !important;
     cursor: pointer;
     box-shadow: none !important;
     user-select: none;
@@ -271,7 +271,19 @@ body {
     z-index: 4;
 }
 .password-eye-btn:hover {
-    color: var(--dark-color, #0f172a);
+    color: var(--primary-color, #2563eb) !important;
+}
+.password-eye-btn[aria-pressed="true"] {
+    color: var(--primary-color, #2563eb) !important;
+}
+[data-theme="dark"] .password-eye-btn {
+    color: #94a3b8 !important;
+}
+[data-theme="dark"] .password-eye-btn:hover {
+    color: #60a5fa !important;
+}
+[data-theme="dark"] .password-eye-btn[aria-pressed="true"] {
+    color: #60a5fa !important;
 }
 .password-eye-btn:focus-visible {
     outline: 2px solid var(--primary-color, #2563eb);

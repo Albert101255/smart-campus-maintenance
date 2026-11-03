@@ -391,7 +391,7 @@
       padding: 0 0.85rem;
       background: transparent;
       border-left: none !important;
-      color: var(--text-muted);
+      color: var(--text-muted) !important;
       cursor: pointer;
       box-shadow: none !important;
       user-select: none;
@@ -401,7 +401,19 @@
       z-index: 4;
     }
     .password-eye-btn:hover {
-      color: var(--text-main);
+      color: var(--primary) !important;
+    }
+    .password-eye-btn[aria-pressed="true"] {
+      color: var(--primary) !important;
+    }
+    [data-theme="dark"] .password-eye-btn {
+      color: var(--text-muted) !important;
+    }
+    [data-theme="dark"] .password-eye-btn:hover {
+      color: var(--primary-hover) !important;
+    }
+    [data-theme="dark"] .password-eye-btn[aria-pressed="true"] {
+      color: var(--primary-hover) !important;
     }
     .password-eye-btn:focus-visible {
       outline: 2px solid var(--primary);
@@ -611,7 +623,7 @@
                 <i class="fa-solid fa-lock"></i>
               </span>
               <input type="password" id="auth-password" class="form-control border-end-0" required placeholder="••••••••" autocomplete="current-password">
-              <button type="button" id="auth-password-toggle" class="btn input-group-text bg-transparent border-start-0 text-muted password-eye-btn" style="border-color: var(--border-color);" aria-label="Show password" aria-pressed="false" title="Show password">
+              <button type="button" id="auth-password-toggle" class="btn input-group-text bg-transparent border-start-0 password-eye-btn" style="border-color: var(--border-color);" aria-label="Show password" aria-pressed="false" title="Show password">
                 <svg class="password-eye-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <clipPath id="eye-clip-auth">

@@ -1309,7 +1309,7 @@
         </div>
         <div class="modal-body p-3">
           <label class="form-label small fw-semibold">Backend API Endpoint</label>
-          <input type="text" id="config-api-url" class="form-control form-control-sm mb-2" value="http://localhost:8080/api">
+          <input type="text" id="config-api-url" class="form-control form-control-sm mb-2" value="https://camp-hats-photograph-literally.trycloudflare.com/api">
           <div class="form-text small mb-3">Default is <code>http://localhost:8080/api</code> for local Spring Boot execution.</div>
           <button class="btn btn-primary btn-sm w-100 mb-2" onclick="saveServerConfig()">
             Test &amp; Connect
@@ -1347,7 +1347,7 @@
     // State & Configurations
     // -------------------------------------------------------------------------
     const state = {
-      apiBase: localStorage.getItem('scm_api_url') || (window.location.port === '8080' ? '/api' : 'http://localhost:8080/api'),
+      apiBase: localStorage.getItem('scm_api_url') || (window.location.port === '8080' ? '/api' : 'https://camp-hats-photograph-literally.trycloudflare.com/api'),
       theme: localStorage.getItem('scm_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
       isOnline: false,
       currentUser: null, // null when logged out
@@ -2790,7 +2790,7 @@
 
     function resetDefaultServerConfig() {
       localStorage.removeItem('scm_api_url');
-      state.apiBase = 'http://localhost:8080/api';
+      state.apiBase = window.location.port === '8080' ? '/api' : 'https://camp-hats-photograph-literally.trycloudflare.com/api';
       document.getElementById('config-api-url').value = state.apiBase;
       saveServerConfig();
     }

@@ -105,6 +105,31 @@ All endpoints are guarded by session authentication and role validation:
 
 ---
 
+## ☁️ Deploy Backend to Cloud (24/7 Live Connection)
+
+Deploy the backend to a free cloud hosting provider so the system stays online 24/7:
+
+### Option A: 1-Click Deploy with Render
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Albert101255/smart-campus-maintenance)
+
+1. Click the **Deploy to Render** button above (or create a new Web Service pointing to this repository on [Render](https://render.com)).
+2. Render reads [`render.yaml`](render.yaml) and automatically builds the Docker container.
+3. Once deployed, Render gives you a secure HTTPS URL (e.g., `https://smart-campus-maintenance.onrender.com`).
+4. In your GitHub Pages frontend, click the **Configure API** button (or open the API Configuration modal) and enter:
+   ```
+   https://smart-campus-maintenance.onrender.com/api
+   ```
+   The frontend will immediately connect to your live cloud Spring Boot backend!
+
+### Option B: Deploy with Railway
+
+1. Create a new project on [Railway](https://railway.app) and link this repository.
+2. Railway detects [`railway.json`](railway.json) / [`Dockerfile`](Dockerfile) and starts the Spring Boot service automatically.
+3. Generate a public domain under service settings and link the URL to the frontend.
+
+---
+
 ## 💻 Running Locally
 
 ### Prerequisites

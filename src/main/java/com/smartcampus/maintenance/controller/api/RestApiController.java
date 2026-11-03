@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -106,7 +107,7 @@ public class RestApiController {
     // -------------------------------------------------------------------------
     @GetMapping("/auth/me")
     public ResponseEntity<Map<String, Object>> getMe(Authentication auth) {
-        User user = resolveUser(auth, false);
+        User user = resolveUser(auth);
         if (user == null) {
             Map<String, Object> resp = new HashMap<>();
             resp.put("authenticated", false);
@@ -240,7 +241,7 @@ public class RestApiController {
     // Complaints Management
     // -------------------------------------------------------------------------
     @GetMapping("/complaints")
-    public ResponseEntity<Map<String, Object>> getComplaints(
+    public ResponseEntity<?> getComplaints(
             @RequestParam(required = false) ComplaintStatus status,
             @RequestParam(required = false) PriorityLevel priority,
             @RequestParam(required = false) Long categoryId,
@@ -252,13 +253,14 @@ public class RestApiController {
             @RequestParam(defaultValue = "50") int size,
             Authentication auth
     ) {
-        User currentUser = resolveUser(auth, false);
-        if (currentUser != null) {
-            if (currentUser.getRole() == Role.STUDENT && studentId == null) {
-                studentId = currentUser.getId();
-            } else if (currentUser.getRole() == Role.MAINTENANCE_STAFF && staffId == null) {
-                staffId = currentUser.getId();
-            }
+        User currentUser = resolveUser(auth);
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Authentication required."));
+        }
+        if (currentUser.getRole() == Role.STUDENT) {
+            studentId = currentUser.getId();
+        } else if (currentUser.getRole() == Role.MAINTENANCE_STAFF && staffId == null) {
+            staffId = currentUser.getId();
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -281,9 +283,16 @@ public class RestApiController {
 
     @GetMapping("/complaints/{id}")
     public ResponseEntity<?> getComplaintDetail(@PathVariable Long id, Authentication auth) {
+        User currentUser = resolveUser(auth);
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Authentication required."));
+        }
         Complaint complaint = complaintService.getComplaintById(id);
         if (complaint == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Work order not found"));
+        }
+        if (currentUser.getRole() == Role.STUDENT && !complaint.getStudent().getId().equals(currentUser.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Access denied: You can only view your own complaints."));
         }
 
         Map<String, Object> detail = formatComplaintMap(complaint);
@@ -311,7 +320,6 @@ public class RestApiController {
         detail.put("history", historyList);
 
         // Comments
-        User currentUser = resolveUser(auth, true);
         List<Comment> comments = commentService.getCommentsForComplaint(complaint, currentUser);
         List<Map<String, Object>> commentList = comments.stream().map(c -> {
             Map<String, Object> m = new LinkedHashMap<>();
@@ -340,11 +348,17 @@ public class RestApiController {
 
     @PostMapping("/complaints")
     public ResponseEntity<?> createComplaint(@RequestBody Map<String, Object> body, Authentication auth) {
-        User user = resolveUser(auth, false);
-        if (user != null && user.getRole() == Role.ADMIN) {
+        User user = resolveUser(auth);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Authentication required to lodge complaints."));
+        }
+        if (user.getRole() == Role.ADMIN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Administrators monitor and manage operations; complaints must be submitted by students."));
         }
-        User student = resolveStudent(auth);
+        if (user.getRole() != Role.STUDENT) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Only students can submit maintenance complaints."));
+        }
+        User student = user;
 
         ComplaintCreateRequest req = new ComplaintCreateRequest();
         req.setTitle((String) body.get("title"));
@@ -396,7 +410,14 @@ public class RestApiController {
 
     @PostMapping("/complaints/{id}/status")
     public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body, Authentication auth) {
-        User currentUser = resolveUser(auth, true);
+        User currentUser = resolveUser(auth);
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Authentication required."));
+        }
+        Complaint complaint = complaintService.getComplaintById(id);
+        if (complaint == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Work order not found"));
+        }
         String statusStr = body.get("status");
         String details = body.getOrDefault("details", "Status updated via Facilities Management Console");
 
@@ -405,6 +426,19 @@ public class RestApiController {
             newStatus = ComplaintStatus.valueOf(statusStr.toUpperCase());
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid status: " + statusStr));
+        }
+
+        if (currentUser.getRole() == Role.STUDENT) {
+            if (!complaint.getStudent().getId().equals(currentUser.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Access denied: You can only update your own complaints."));
+            }
+            if (newStatus != ComplaintStatus.CLOSED && newStatus != ComplaintStatus.REOPENED) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Students can only close or reopen their complaints."));
+            }
+        } else if (currentUser.getRole() == Role.MAINTENANCE_STAFF) {
+            if (complaint.getAssignedStaff() == null || !complaint.getAssignedStaff().getId().equals(currentUser.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Technicians can only update status for complaints assigned to them."));
+            }
         }
 
         Complaint updated = complaintService.updateStatus(id, newStatus, details, currentUser);
@@ -417,11 +451,14 @@ public class RestApiController {
 
     @PostMapping("/complaints/{id}/assign")
     public ResponseEntity<?> assignStaff(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
-        User user = resolveUser(auth, false);
-        if (user != null && user.getRole() != Role.ADMIN) {
+        User user = resolveUser(auth);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Authentication required."));
+        }
+        if (user.getRole() != Role.ADMIN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Only campus administrators can assign technicians."));
         }
-        User adminUser = resolveAdmin(auth);
+        User adminUser = user;
         Long staffId = Long.valueOf(body.get("staffId").toString());
         PriorityLevel priority = PriorityLevel.MEDIUM;
         if (body.get("priority") != null) {
@@ -441,9 +478,22 @@ public class RestApiController {
 
     @PostMapping("/complaints/{id}/comments")
     public ResponseEntity<?> addComment(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
-        User currentUser = resolveUser(auth, true);
+        User currentUser = resolveUser(auth);
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Authentication required."));
+        }
+        Complaint complaint = complaintService.getComplaintById(id);
+        if (complaint == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Work order not found"));
+        }
         String content = (String) body.get("content");
         boolean isInternal = Boolean.TRUE.equals(body.get("isInternal"));
+        if (isInternal && currentUser.getRole() == Role.STUDENT) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Students cannot create internal diagnostic notes."));
+        }
+        if (currentUser.getRole() == Role.STUDENT && !complaint.getStudent().getId().equals(currentUser.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Access denied: You can only comment on your own complaints."));
+        }
 
         CommentRequest req = new CommentRequest();
         req.setContent(content);
@@ -461,11 +511,21 @@ public class RestApiController {
 
     @PostMapping("/complaints/{id}/feedback")
     public ResponseEntity<?> submitFeedback(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
-        User user = resolveUser(auth, false);
-        if (user != null && user.getRole() != Role.STUDENT) {
+        User user = resolveUser(auth);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Authentication required."));
+        }
+        if (user.getRole() != Role.STUDENT) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Service satisfaction rating is reserved for students."));
         }
-        User student = resolveStudent(auth);
+        Complaint complaint = complaintService.getComplaintById(id);
+        if (complaint == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Work order not found"));
+        }
+        if (!complaint.getStudent().getId().equals(user.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Access denied: You can only rate your own complaints."));
+        }
+        User student = user;
         Integer rating = Integer.valueOf(body.get("rating").toString());
         String comments = (String) body.getOrDefault("comments", "");
 
@@ -528,8 +588,11 @@ public class RestApiController {
 
     @GetMapping("/audit")
     public ResponseEntity<?> getAuditLogs(Authentication auth, @RequestParam(defaultValue = "20") int limit) {
-        User user = resolveUser(auth, false);
-        if (user != null && user.getRole() != Role.ADMIN) {
+        User user = resolveUser(auth);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Authentication required."));
+        }
+        if (user.getRole() != Role.ADMIN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Access denied: Audit log is restricted to campus administrators."));
         }
         Page<AuditLog> page = auditService.getAuditLogs(PageRequest.of(0, limit));
@@ -616,25 +679,17 @@ public class RestApiController {
         return m;
     }
 
-    private User resolveUser(Authentication auth, boolean fallbackToAdmin) {
-        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof CustomUserDetails) {
+    private User resolveUser(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            return null;
+        }
+        if (auth.getPrincipal() instanceof CustomUserDetails) {
             return ((CustomUserDetails) auth.getPrincipal()).getUser();
         }
-        if (fallbackToAdmin) {
-            return userRepository.findByEmail("admin@smartcampus.com").orElse(null);
+        String name = auth.getName();
+        if (name != null) {
+            return userRepository.findByEmail(name).orElse(null);
         }
         return null;
-    }
-
-    private User resolveAdmin(Authentication auth) {
-        User u = resolveUser(auth, false);
-        if (u != null && u.getRole() == Role.ADMIN) return u;
-        return userRepository.findByEmail("admin@smartcampus.com").orElse(null);
-    }
-
-    private User resolveStudent(Authentication auth) {
-        User u = resolveUser(auth, false);
-        if (u != null && u.getRole() == Role.STUDENT) return u;
-        return userRepository.findByEmail("student@smartcampus.com").orElse(null);
     }
 }

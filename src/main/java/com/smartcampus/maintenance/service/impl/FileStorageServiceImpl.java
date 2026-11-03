@@ -35,7 +35,11 @@ public class FileStorageServiceImpl implements FileStorageService {
         String newFileName = UUID.randomUUID().toString() + extension;
 
         try {
+            Path rootDir = Paths.get(uploadDir).toAbsolutePath().normalize();
             Path targetLocation = Paths.get(uploadDir, subDirectory).toAbsolutePath().normalize();
+            if (!targetLocation.startsWith(rootDir)) {
+                throw new IllegalArgumentException("Invalid upload sub-directory: Path traversal attempt");
+            }
             Files.createDirectories(targetLocation);
 
             Path filePath = targetLocation.resolve(newFileName);
@@ -99,7 +103,11 @@ public class FileStorageServiceImpl implements FileStorageService {
             } else if (cleanPath.startsWith("uploads/")) {
                 cleanPath = cleanPath.substring("uploads/".length());
             }
+            Path baseDir = Paths.get(uploadDir).toAbsolutePath().normalize();
             Path filePath = Paths.get(uploadDir, cleanPath).toAbsolutePath().normalize();
+            if (!filePath.startsWith(baseDir)) {
+                return null; // Prevent path traversal attacks
+            }
             if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
                 return null;
             }

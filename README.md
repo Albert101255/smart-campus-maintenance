@@ -1,8 +1,9 @@
 # Smart Campus Facilities & Maintenance Management System
 
-> **Official Website:** [https://albert101255.github.io/smart-campus-maintenance/](https://albert101255.github.io/smart-campus-maintenance/)
+> **Official Website:** [https://albert101255.github.io/smart-campus-maintenance/](https://albert101255.github.io/smart-campus-maintenance/)  
+> **Live Backend API (Cloudflare Edge):** `https://camp-hats-photograph-literally.trycloudflare.com/api`
 
-An enterprise-grade facilities maintenance and incident management platform built with **Spring Boot 3**, **Spring Security**, **Spring Data JPA / Hibernate**, and a responsive modern dashboard with dark/light themes, real-time KPI metrics, printable dispatch slips, visual defect photo evidence, and strict **Role-Based Access Control (RBAC)**.
+An enterprise-grade facilities maintenance and incident management platform built with **Spring Boot 3**, **Spring Security**, **Spring Data JPA / Hibernate**, and a responsive modern dashboard with dark/light themes, real-time KPI metrics, printable dispatch slips, visual defect photo evidence, canonical path traversal protections, and strict **Role-Based Access Control (RBAC)**.
 
 ---
 
@@ -91,6 +92,46 @@ All endpoints are guarded by session authentication and role validation:
 | `GET` | `/api/categories` | Authenticated | Active facility categories list |
 | `GET` | `/api/buildings` | Authenticated | Campus buildings and facility blocks |
 | `GET` | `/api/staff` | Authenticated | Maintenance trade technicians directory |
+
+---
+
+## 🛡️ Security Architecture & Hardening
+
+The application enforces end-to-end security defenses against common OWASP vulnerabilities:
+
+1. **Role-Based Access Control (RBAC):**
+   - Protected API endpoints validate the caller's session and roles (`ADMIN`, `STUDENT`, `MAINTENANCE_STAFF`).
+   - Unauthenticated callers receive immediate `401 Unauthorized` responses without user or data disclosure.
+   - Non-administrators attempting to query `/api/audit` or assign technicians receive `403 Forbidden`.
+2. **Broken Object-Level Authorization (BOLA / IDOR) Defense:**
+   - Complaint queries (`GET /api/complaints`, `GET /api/complaints/{id}`) strictly enforce student boundaries. Students cannot view or modify another student's work orders by parameter manipulation.
+3. **Canonical Path Traversal Protection:**
+   - File storage paths are normalized and validated against the canonical root directory boundary before reading or writing defect photos, neutralizing `../` traversal attacks.
+4. **Cross-Origin Resource Sharing (CORS):**
+   - Configured for secure cross-origin communication between the GitHub Pages static front-end and Cloudflare/Cloud edge backends with credentials enabled.
+
+---
+
+## 🧪 Automated Testing & Verification
+
+The project includes an enterprise automated test suite covering unit tests, integration flows, and security regression checks:
+
+```bash
+# Run the complete test suite (19/19 tests)
+mvn test
+
+# Run dedicated security vulnerability tests
+mvn test -Dtest=SecurityVulnerabilityTest
+```
+
+### Test Coverage Summary
+
+| Test Suite | File | Tests | Focus Areas |
+| :--- | :--- | :---: | :--- |
+| **Security Vulnerability** | `SecurityVulnerabilityTest.java` | 7 | Audit log RBAC, anonymous assignment prevention, status update authorization, IDOR defenses |
+| **Controller & Security** | `SecurityAndControllerIntegrationTest.java` | 7 | Route guards, login redirects, student registration flow, Thymeleaf views |
+| **Complaint Business Logic** | `ComplaintServiceTest.java` | 4 | SLA targets, priority level transitions, work order assignment lifecycle |
+| **Context Loading** | `SmartCampusApplicationTests.java` | 1 | Spring Boot application context & bean wiring integrity |
 
 ---
 

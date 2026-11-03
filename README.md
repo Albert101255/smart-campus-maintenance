@@ -1,7 +1,6 @@
 # Smart Campus Facilities & Maintenance Management System
 
-> **Official Website:** [https://albert101255.github.io/smart-campus-maintenance/](https://albert101255.github.io/smart-campus-maintenance/)  
-> **Live Backend API (Cloudflare Edge):** `https://camp-hats-photograph-literally.trycloudflare.com/api`
+> **Official Website:** [https://albert101255.github.io/smart-campus-maintenance/](https://albert101255.github.io/smart-campus-maintenance/)
 
 An enterprise-grade facilities maintenance and incident management platform built with **Spring Boot 3**, **Spring Security**, **Spring Data JPA / Hibernate**, and a responsive modern dashboard with dark/light themes, real-time KPI metrics, printable dispatch slips, visual defect photo evidence, canonical path traversal protections, and strict **Role-Based Access Control (RBAC)**.
 

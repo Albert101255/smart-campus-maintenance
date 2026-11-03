@@ -44,9 +44,36 @@
 
                     <div class="mb-3">
                         <label for="password" class="form-label small fw-semibold">Password</label>
-                        <div class="input-group">
+                        <div class="input-group password-input-group">
                             <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-muted"></i></span>
-                            <input type="password" class="form-control border-start-0 ps-0" id="password" name="password" required placeholder="••••••••">
+                            <input type="password" class="form-control border-start-0 border-end-0 ps-0" id="password" name="password" required placeholder="••••••••">
+                            <button type="button" id="login-password-toggle" class="btn input-group-text bg-light border-start-0 text-muted password-eye-btn" aria-label="Show password" aria-pressed="false" title="Show password">
+                                <svg class="password-eye-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <clipPath id="eye-clip-login">
+                                            <path class="eye-aperture-path" d="M 2 12 C 5 6 19 6 22 12 C 19 18 5 18 2 12 Z" />
+                                        </clipPath>
+                                    </defs>
+                                    <!-- Open eye clipped to opening eyelid aperture -->
+                                    <g clip-path="url(#eye-clip-login)">
+                                        <path class="eye-sclera" d="M 2 12 C 5 6 19 6 22 12 C 19 18 5 18 2 12 Z" />
+                                        <g class="eye-pupil-group" style="transform: translate(0px, 0px);">
+                                            <circle class="eye-iris" cx="12" cy="12" r="3.7" />
+                                            <circle class="eye-pupil" cx="12" cy="12" r="2.1" />
+                                            <circle class="eye-glint" cx="13.2" cy="10.8" r="0.9" />
+                                        </g>
+                                    </g>
+                                    <!-- Open eye contour -->
+                                    <path class="eye-open-outline" d="M 2 12 C 5 6 19 6 22 12 C 19 18 5 18 2 12 Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                                    <!-- Natural closed eyelid contour and lashes -->
+                                    <g class="eye-closed-group">
+                                        <path class="eye-closed-lid" d="M 3 12.5 C 7 16.5 17 16.5 21 12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" />
+                                        <path class="eye-closed-lash" d="M 6.8 14.5 L 5.5 16.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                        <path class="eye-closed-lash" d="M 12 15.6 L 12 18.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                        <path class="eye-closed-lash" d="M 17.2 14.5 L 18.5 16.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                    </g>
+                                </svg>
+                            </button>
                         </div>
                     </div>
 
@@ -87,6 +114,135 @@
             document.getElementById('email').value = email;
             document.getElementById('password').value = pwd;
         }
+
+        // -------------------------------------------------------------------------
+        // Interactive Animated Password Visibility Eye Toggle
+        // -------------------------------------------------------------------------
+        function setupAnimatedPasswordEye(btnId, inputId) {
+            const btn = document.getElementById(btnId);
+            const input = document.getElementById(inputId);
+            if (!btn || !input) return;
+
+            const svg = btn.querySelector('.password-eye-svg');
+            const pupilGroup = btn.querySelector('.eye-pupil-group');
+            if (!svg || !pupilGroup) return;
+
+            let isOpen = false;
+            let targetX = 0;
+            let targetY = 0;
+            let currentX = 0;
+            let currentY = 0;
+            let rafId = null;
+
+            const isTouch = () => window.matchMedia('(pointer: coarse)').matches || ('ontouchstart' in window);
+            const prefersReduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            function renderFrame() {
+                if (!isOpen) {
+                    pupilGroup.style.transform = 'translate(0px, 0px)';
+                    rafId = null;
+                    return;
+                }
+
+                currentX += (targetX - currentX) * 0.22;
+                currentY += (targetY - currentY) * 0.22;
+
+                pupilGroup.style.transform = `translate(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px)`;
+
+                const remainingDist = Math.hypot(targetX - currentX, targetY - currentY);
+                if (remainingDist > 0.02) {
+                    rafId = requestAnimationFrame(renderFrame);
+                } else {
+                    currentX = targetX;
+                    currentY = targetY;
+                    pupilGroup.style.transform = `translate(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px)`;
+                    rafId = null;
+                }
+            }
+
+            function onPointerMove(e) {
+                if (!isOpen || isTouch() || prefersReduced()) return;
+
+                const rect = svg.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                const dx = e.clientX - centerX;
+                const dy = e.clientY - centerY;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist < 2) {
+                    targetX = 0;
+                    targetY = 0;
+                } else {
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+                    const factor = Math.min(dist / 240, 1);
+
+                    targetX = nx * 3.5 * factor;
+                    targetY = ny * 1.8 * factor;
+                }
+
+                if (!rafId) {
+                    rafId = requestAnimationFrame(renderFrame);
+                }
+            }
+
+            function startTracking() {
+                if (isTouch() || prefersReduced()) return;
+                btn.classList.add('is-tracking');
+                window.addEventListener('pointermove', onPointerMove, { passive: true });
+            }
+
+            function stopTracking() {
+                btn.classList.remove('is-tracking');
+                window.removeEventListener('pointermove', onPointerMove);
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+                targetX = 0;
+                targetY = 0;
+                currentX = 0;
+                currentY = 0;
+                pupilGroup.style.transform = 'translate(0px, 0px)';
+            }
+
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const wasFocused = (document.activeElement === input);
+                const selStart = input.selectionStart;
+                const selEnd = input.selectionEnd;
+
+                isOpen = !isOpen;
+
+                input.type = isOpen ? 'text' : 'password';
+                if (wasFocused) {
+                    input.focus();
+                    if (selStart !== null && selEnd !== null) {
+                        input.setSelectionRange(selStart, selEnd);
+                    }
+                }
+
+                btn.setAttribute('aria-label', isOpen ? 'Hide password' : 'Show password');
+                btn.setAttribute('aria-pressed', isOpen ? 'true' : 'false');
+                btn.setAttribute('title', isOpen ? 'Hide password' : 'Show password');
+
+                if (isOpen) {
+                    btn.classList.add('is-open');
+                    startTracking();
+                } else {
+                    btn.classList.remove('is-open');
+                    stopTracking();
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupAnimatedPasswordEye('login-password-toggle', 'password');
+        });
     </script>
 </body>
 </html>
